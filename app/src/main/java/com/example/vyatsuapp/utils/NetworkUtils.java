@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class NetworkUtils {
-    private static final String VyatsuTimeTableURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie";
-    private static final String fullTimeTimeTable = "-zanyatiy-dlya-studentov.html";
+    private static final String VyatsuTimeTableURL = "";
+    private static final String fullTimeTimeTable = "";
 
     public static URL generateURL() {
         Uri builtUri = Uri.parse(VyatsuTimeTableURL + fullTimeTimeTable)
