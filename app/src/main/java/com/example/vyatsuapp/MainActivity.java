@@ -1,7 +1,7 @@
 package com.example.vyatsuapp;
 
 import static com.example.vyatsuapp.utils.NetworkUtils.generateURL;
-import static com.example.vyatsuapp.utils.NetworkUtils.getResponseFromURL;
+import static com.example.vyatsuapp.utils.ParseToGetFaculties.getFaculties;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,24 +13,40 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     private TextView result;
-
+    private static final String VyatsuTimeTableURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
     String[] faculty = {"ПЕД", "ИБиБ", "ХиЭ", "ФАВТ", "ФИПНиК", "ФКиФМН"};
 
-    class QueryTask extends AsyncTask<URL, Void, String> {
+    private class NetworkTask extends AsyncTask<Void, Void, Document> {
         @Override
-        protected String doInBackground(URL... urls) {
-            return getResponseFromURL(urls[0]);
+        protected Document doInBackground(Void... params) {
+            try {
+                return Jsoup.connect(VyatsuTimeTableURL).get();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         @Override
-        protected void onPostExecute(String response) {
-            result.setText(response);
+        protected void onPostExecute(Document document) {
+            if (document != null) {
+                var faculty = document.select("h4");
+                String facultyText = faculty.text();
+
+                result.setText(facultyText);
+            } else {
+
+            }
         }
     }
 
@@ -54,8 +70,7 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                URL generatedURL = generateURL();
-                new QueryTask().execute(generatedURL);
+                new NetworkTask().execute();
             }
         };
 

@@ -3,4 +3,5 @@
     <string name="Course">Ваш курс</string>
     <string name="confirm">Подтвердить</string>
     <string name="outTimetable">Расписание будет здесь</string>
+    <string name="clear">Очистить</string>
 </resources>

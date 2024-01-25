@@ -32,17 +32,6 @@
 
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/timetable"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/outTimetable" />
-    </ScrollView>
-
     <Spinner
         android:id="@+id/chooseFaculty"
         android:layout_width="match_parent"
@@ -54,7 +43,18 @@
         android:layout_height="wrap_content"
         android:insetLeft="150dp"
         android:insetRight="150dp"
-        android:text="Очистить"/>
+        android:text="@string/clear"/>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/timetable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/outTimetable" />
+    </ScrollView>
 
 
 </LinearLayout>
