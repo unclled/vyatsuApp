@@ -24,6 +24,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity {
     private TextView result;
     private static final String VyatsuTimeTableURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
+    private static final String fullTimeTimeTable = "";
     String[] faculty = {"ПЕД", "ИБиБ", "ХиЭ", "ФАВТ", "ФИПНиК", "ФКиФМН"};
 
     private class NetworkTask extends AsyncTask<Void, Void, Document> {
