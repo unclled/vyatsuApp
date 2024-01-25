@@ -17,11 +17,11 @@
             android:id="@+id/Course"
             android:layout_width="269dp"
             android:layout_height="wrap_content"
+            android:autofillHints=""
             android:hint="@string/Course"
             android:inputType="numberDecimal"
             android:padding="10dp"
-            android:textSize="24sp"
-            android:autofillHints="" />
+            android:textSize="24sp" />
 
         <Button
             android:id="@+id/confirm_faculty_course"
@@ -35,7 +35,8 @@
     <Spinner
         android:id="@+id/chooseFaculty"
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"/>
 
     <Button
         android:id="@+id/clear_button"
@@ -43,7 +44,8 @@
         android:layout_height="wrap_content"
         android:insetLeft="150dp"
         android:insetRight="150dp"
-        android:text="@string/clear"/>
+        android:onClick="ClearAll"
+        android:text="@string/clear" />
 
     <ScrollView
         android:layout_width="wrap_content"

@@ -1,43 +1,62 @@
 package com.example.vyatsuapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.vyatsuapp.R;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String VyatsuURL = "https://www.vyatsu.ru/";
-    private final String FullTimeTimetable = "studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
-    // расписание для очного обучения
-    private final String DistanceCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации и занятий для заочников
-    private final String FullTimeAndDistance = "studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-studentov-ochno-zaochnoy-formy.html";
-    // расписание промежуточной аттестации и занятий для очно-заочного обучения
-    private final String FullTimeCertification = "internet-gazeta/raspisanie-sessiy-obuchayuschihsya-na-2016-2017-uc.html";
-    // расписание промежуточной аттестации для очников
-    private final String PracticeCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации для обучающихся по практике
-
     private TextView result;
+    private static final String VyatsuTimeTableURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
+    private static final String fullTimeTimeTable = "123456";
+    String[] faculty = {"ПЕД", "ИБиБ", "ХиЭ", "ФАВТ", "ФИПНиК", "ФКиФМН"};
 
-    private static final String[] typeOfEducation = {"Очно", "Очно-заочно", "Заочно"};
+
+    public void ClearAll(View view) {
+        EditText courseField = findViewById(R.id.Course);
+        Spinner spFaculty = findViewById(R.id.chooseFaculty);
+        result = findViewById(R.id.timetable);
+
+        courseField.clearComposingText();
+        result.setText("Расписание будет здесь!");
+    }
+
+
+    private class NetworkTask extends AsyncTask<Void, Void, Document> {
+        @Override
+        protected Document doInBackground(Void... params) {
+            try {
+                return Jsoup.connect(VyatsuTimeTableURL).maxBodySize(0).get();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Document document) {
+            if (document != null) {
+                var faculty = document.select("h4");
+                String facultyText = faculty.text();
+
+                result.setText(facultyText);
+            } else {
+
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,66 +67,35 @@ public class MainActivity extends AppCompatActivity {
         Button confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
         result = findViewById(R.id.timetable);
 
+        Spinner spFaculty = (Spinner) findViewById(R.id.chooseFaculty);
         ArrayAdapter<String> facultyAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, typeOfEducation);
+                                            android.R.layout.simple_spinner_item, faculty);
         facultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        Spinner spFaculty = findViewById(R.id.chooseFaculty);
         spFaculty.setAdapter(facultyAdapter);
+
+        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                String item = (String)parent.getItemAtPosition(position);
+                result.setText(item);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                String Item = "Выберите ваш факультет";
+                result.setText(Item);
+            }
+        };
+
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String selectedItem = spFaculty.getSelectedItem().toString();
-                String selectedEducationForm;
-                if (selectedItem.equals("Очно")) {
-                    selectedEducationForm = FullTimeTimetable;
-                } else if (selectedItem.equals("Очно-заочно")) {
-                    selectedEducationForm = FullTimeAndDistance;
-                } else {
-                    selectedEducationForm = DistanceCertification;
-                }
-
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            URL url = new URL(VyatsuURL + selectedEducationForm);
-                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                            connection.setRequestMethod("GET");
-
-                            int responseCode = connection.getResponseCode();
-                            if (responseCode == HttpURLConnection.HTTP_OK) {
-                                InputStream inputStream = connection.getInputStream();
-                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                                StringBuilder response = new StringBuilder();
-                                String line;
-                                while ((line = bufferedReader.readLine()) != null) {
-                                    response.append(line);
-                                }
-                                bufferedReader.close();
-                                inputStream.close();
-
-                                final String htmlResponse = response.toString();
-                                Document document = Jsoup.parse(htmlResponse);
-                                final String facultyText = document.select("div.fak_name").text();
-
-                                runOnUiThread(() -> {
-                                    result.setText(facultyText);
-                                });
-                            }
-
-                            connection.disconnect();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                thread.start();
+                new NetworkTask().execute();
             }
         };
 
         confirmCourseFacultyButton.setOnClickListener(onClickListener);
+
     }
 }
