@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Document doInBackground(Void... params) {
             try {
-                return Jsoup.connect(VyatsuTimeTableURL).get();
+                return Jsoup.connect(VyatsuTimeTableURL).maxBodySize(0).get();
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
