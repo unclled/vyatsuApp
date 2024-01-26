@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         View.OnClickListener onClickListener = v -> {
             String selectedItem = spFaculty.getSelectedItem().toString();
+
             String selectedEducationForm;
             if (selectedItem.equals("Очно")) {
                 selectedEducationForm = FullTimeTimetable;
