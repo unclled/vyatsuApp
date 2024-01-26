@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText courseField = findViewById(R.id.Course);
 
-    public void ClearAll() {
+    public void ClearAll(View view) {
         courseField.setText("");
         result.setText("Расписание будет здесь!");
     }
