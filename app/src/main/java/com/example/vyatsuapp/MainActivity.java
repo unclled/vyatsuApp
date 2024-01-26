@@ -33,14 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private final String PracticeCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
     // расписание промежуточной аттестации для обучающихся по практике
 
-    private TextView result;
+    private final TextView result = findViewById(R.id.timetable);;
 
     private static final String[] typeOfEducation = {"Очно", "Очно-заочно", "Заочно"};
 
-    public void ClearAll(View view) {
-        EditText courseField = findViewById(R.id.Course);
-        result = findViewById(R.id.timetable);
+    EditText courseField = findViewById(R.id.Course);
 
+    public void ClearAll() {
         courseField.setText("");
         result.setText("Расписание будет здесь!");
     }
@@ -50,9 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        EditText courseField = findViewById(R.id.Course);
         Button confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
-        result = findViewById(R.id.timetable);
 
         ArrayAdapter<String> facultyAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, typeOfEducation);
