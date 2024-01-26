@@ -43,7 +43,8 @@
         android:layout_height="wrap_content"
         android:insetLeft="150dp"
         android:insetRight="150dp"
-        android:text="@string/clear"/>
+        android:text="@string/clear"
+        android:onClick="ClearAll" />
 
     <ScrollView
         android:layout_width="wrap_content"
