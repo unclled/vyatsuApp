@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.vyatsuapp.R;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -33,13 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private final String PracticeCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
     // расписание промежуточной аттестации для обучающихся по практике
 
-    private final TextView result = findViewById(R.id.timetable);;
+    private TextView result;
 
     private static final String[] typeOfEducation = {"Очно", "Очно-заочно", "Заочно"};
 
-    EditText courseField = findViewById(R.id.Course);
-
     public void ClearAll(View view) {
+        EditText courseField = findViewById(R.id.Course);
+        result = findViewById(R.id.timetable);
+
         courseField.setText("");
         result.setText("Расписание будет здесь!");
     }
@@ -49,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        EditText courseField = findViewById(R.id.Course);
         Button confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
+        result = findViewById(R.id.timetable);
 
         ArrayAdapter<String> facultyAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, typeOfEducation);
@@ -58,50 +63,57 @@ public class MainActivity extends AppCompatActivity {
         Spinner spFaculty = findViewById(R.id.chooseFaculty);
         spFaculty.setAdapter(facultyAdapter);
 
-        View.OnClickListener onClickListener = v -> {
-            String selectedItem = spFaculty.getSelectedItem().toString();
-
-            String selectedEducationForm;
-            if (selectedItem.equals("Очно")) {
-                selectedEducationForm = FullTimeTimetable;
-            } else if (selectedItem.equals("Очно-заочно")) {
-                selectedEducationForm = FullTimeAndDistance;
-            } else {
-                selectedEducationForm = DistanceCertification;
-            }
-
-            Thread thread = new Thread(() -> {
-                try {
-                    URL url = new URL(VyatsuURL + selectedEducationForm);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        InputStream inputStream = connection.getInputStream();
-                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                        StringBuilder response = new StringBuilder();
-                        String line;
-                        while ((line = bufferedReader.readLine()) != null) {
-                            response.append(line);
-                        }
-                        bufferedReader.close();
-                        inputStream.close();
-
-                        final String htmlResponse = response.toString();
-                        Document document = Jsoup.parse(htmlResponse);
-                        final String facultyText = document.select("div.fak_name").text();
-
-                        runOnUiThread(() -> result.setText(facultyText));
-                    }
-
-                    connection.disconnect();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String selectedItem = spFaculty.getSelectedItem().toString();
+                String selectedEducationForm;
+                if (selectedItem.equals("Очно")) {
+                    selectedEducationForm = FullTimeTimetable;
+                } else if (selectedItem.equals("Очно-заочно")) {
+                    selectedEducationForm = FullTimeAndDistance;
+                } else {
+                    selectedEducationForm = DistanceCertification;
                 }
-            });
 
-            thread.start();
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            URL url = new URL(VyatsuURL + selectedEducationForm);
+                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                            connection.setRequestMethod("GET");
+
+                            int responseCode = connection.getResponseCode();
+                            if (responseCode == HttpURLConnection.HTTP_OK) {
+                                InputStream inputStream = connection.getInputStream();
+                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                                StringBuilder response = new StringBuilder();
+                                String line;
+                                while ((line = bufferedReader.readLine()) != null) {
+                                    response.append(line);
+                                }
+                                bufferedReader.close();
+                                inputStream.close();
+
+                                final String htmlResponse = response.toString();
+                                Document document = Jsoup.parse(htmlResponse);
+                                final String facultyText = document.select("div.fak_name").text();
+
+                                runOnUiThread(() -> {
+                                    result.setText(facultyText);
+                                });
+                            }
+
+                            connection.disconnect();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                thread.start();
+            }
         };
 
         confirmCourseFacultyButton.setOnClickListener(onClickListener);
