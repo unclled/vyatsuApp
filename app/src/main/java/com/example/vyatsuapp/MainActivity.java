@@ -62,9 +62,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String url = VyatsuURL + selectedEducationForm;
                     var document = Jsoup.connect(url).maxBodySize(0).get();
-                    var facultyText = document.select("div.fak_name").text();
-
-                    runOnUiThread(() -> result.setText(facultyText));
+                    String facultyText = document.select("div.fak_name").text();
+                    String finalString = removeUnnecessary(facultyText);
+                    runOnUiThread(() -> result.setText(finalString));
+                    System.out.println(finalString);
 
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -72,10 +73,16 @@ public class MainActivity extends AppCompatActivity {
             }); thread.start();
     }
 
+    public String removeUnnecessary(String faculty) {
+        String clearedString = faculty;
+        String trash = "\\(ОРУ\\)";
+        clearedString = clearedString.replaceAll(trash, "");
+        return clearedString;
+    }
+
     public void ClearAll(View view) {
         EditText courseField = findViewById(R.id.Course);
         result = findViewById(R.id.timetable);
-
         courseField.setText("");
         result.setText("Расписание будет здесь!");
     }
