@@ -10,34 +10,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.vyatsuapp.utils.EducationInfo;
 import com.example.vyatsuapp.utils.NothingSelectedSpinnerAdapter;
 import com.example.vyatsuapp.utils.dropdownLists;
 
-import org.jsoup.Jsoup;
-
 public class MainActivity extends AppCompatActivity {
-    private static final String VyatsuURL = "https://www.vyatsu.ru/";
-    private final String FullTimeTimetable = "studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
-    // расписание для очного обучения
-    private final String DistanceCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации и занятий для заочников
-    private final String FullTimeAndDistance = "studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-studentov-ochno-zaochnoy-formy.html";
-    // расписание промежуточной аттестации и занятий для очно-заочного обучения
-    private final String FullTimeCertification = "internet-gazeta/raspisanie-sessiy-obuchayuschihsya-na-2016-2017-uc.html";
-    // расписание промежуточной аттестации для очников
-    private final String PracticeCertification = "internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации для обучающихся по практике
-
     private TextView result;
 
     private static final String[] EducationalFormat = {"Очно", "Очно-заочно", "Заочно"};
     private static final String[] typeOfEducation = {"Бакалавриат", "Специалитет", "Магистратура", "Аспирантура"};
+
     public Spinner spEducationalFormat;
     public Spinner spTypeOfEducation;
     public Spinner spFaculties;
+
     public Button confirmCourseFacultyButton;
+
     public EditText courseField;
+
+    private String selected_TypeEd = null;
+    private String selected_EdForm = null;
+    private String selected_Faculty = null;
 
 
     @Override
@@ -56,12 +51,16 @@ public class MainActivity extends AppCompatActivity {
         spFaculties.setVisibility(View.GONE);
 
         //////////////////////////Создание адаптеров и выпадающих списков//////////////////////////
-        ArrayAdapter<String> EducationalFormat_Adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, EducationalFormat);
+        ArrayAdapter<String> EducationalFormat_Adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                EducationalFormat);
         EducationalFormat_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        ArrayAdapter<String> typeOfEducation_Adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, typeOfEducation);
+        ArrayAdapter<String> typeOfEducation_Adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                typeOfEducation);
         EducationalFormat_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spTypeOfEducation.setPrompt("Укажите тип обучения");
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 Object selectedItem_EdForm = parent.getItemAtPosition(position);
 
                 if (selectedItem_EdForm != null) { //если что-то выбрано в первом списке
-                    String selected_EdForm = selectedItem_EdForm.toString();
+                    selected_EdForm = selectedItem_EdForm.toString();
                     spTypeOfEducation.setVisibility(View.VISIBLE); //отображаем второй список
                     spTypeOfEducation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override
@@ -92,15 +91,17 @@ public class MainActivity extends AppCompatActivity {
                             Object selectedItem_TypeEd = parent.getItemAtPosition(position);
 
                             if (selectedItem_TypeEd != null) { //если что-то выбрано во втором списке
-                                String selected_TypeEd = selectedItem_TypeEd.toString();
+                                selected_TypeEd = selectedItem_TypeEd.toString();
 
                                 //создаем экземпляр класса для оторбражения возможных факультетов
                                 dropdownLists spFaculty = new dropdownLists(selected_EdForm, selected_TypeEd);
                                 String[] chosenFaculties = spFaculty.spFacultyItems();
 
                                 //создаем адаптер для отображения вариантов для последнего списка
-                                ArrayAdapter<String> Faculties_Adapter = new ArrayAdapter<>(MainActivity.this,
-                                        android.R.layout.simple_spinner_item, chosenFaculties);
+                                ArrayAdapter<String> Faculties_Adapter = new ArrayAdapter<>(
+                                        MainActivity.this,
+                                        android.R.layout.simple_spinner_item,
+                                        chosenFaculties);
                                 Faculties_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
                                 spFaculties.setPrompt("Выберите факультет");
@@ -110,59 +111,57 @@ public class MainActivity extends AppCompatActivity {
                                         MainActivity.this));
 
                                 spFaculties.setVisibility(View.VISIBLE);
+                                spFaculties.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                    @Override
+                                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                        Object selectedItem_Faculty = parent.getItemAtPosition(position);
+
+                                        if (selectedItem_Faculty != null) { //если что-то выбрано во третьем списке
+                                            selected_Faculty = selectedItem_Faculty.toString();
+                                        }
+                                    }
+                                    @Override
+                                    public void onNothingSelected(AdapterView<?> parent) {}
+                                });
                             }
                         }
-
                         @Override
                         public void onNothingSelected(AdapterView<?> parent) {}
                     });
 
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
         ///////////////////////////////////////////////////////////////////////////////////////////
     }
 
-
     public void ConfirmButtonPressed(View view) {
-        //создай новый класс, чтобы при нажатии на кнопку подтвердить выходили все возможные
-        //группы выбранного типа обучения, ступени обучени и текущего факультета. Просто
-        //сделай класс, чтобы по нажатию ConfirmButtonPressed действия происходили в классе, а не
-        //тут, учитывая все данные, полученные из 3х выпадающих списков. Пусть просто выводит как
-        //сейчас все классы, потом на этот счет разберемся. Нужен просто конструктор и что-то еще по мелочи.
-            String selectedItem = spEducationalFormat.getSelectedItem().toString();
-            String selectedEducationForm;
-
-            if (selectedItem.equals("Очно")) {
-                selectedEducationForm = FullTimeTimetable;
-            } else if (selectedItem.equals("Очно-заочно")) {
-                selectedEducationForm = FullTimeAndDistance;
-            } else {
-                selectedEducationForm = DistanceCertification;
-            }
+        if (selected_EdForm == null || selected_Faculty == null
+                || selected_TypeEd == null || courseField.getText().toString().equals("")) {
+            Toast toast = Toast.makeText(
+                    this,
+                    "Заполните все поля!",
+                    Toast.LENGTH_LONG);
+            toast.show();
+        }
+        else {
             Thread thread = new Thread(() -> {
                 try {
-                    String url = VyatsuURL + selectedEducationForm;
-                    var document = Jsoup.connect(url).maxBodySize(0).get();
-                    String facultyText = document.select("div.grpPeriod").text(); //уже правильный класс для всех групп
-                    String finalString = removeUnnecessary(facultyText);
-                    runOnUiThread(() -> result.setText(finalString));
-                    System.out.println(finalString);
-
+                    EducationInfo educationInfo = new EducationInfo(
+                            selected_EdForm,
+                            selected_TypeEd,
+                            selected_Faculty,
+                            courseField);
+                    String receivedInfo = educationInfo.ConnectAndGetInfo();
+                    runOnUiThread(() -> result.setText(receivedInfo));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            }); thread.start();
-    }
-
-    public String removeUnnecessary(String faculty) {
-        String clearedString = faculty;
-        String trash = "\\(ОРУ\\)";
-        clearedString = clearedString.replaceAll(trash, "");
-        return clearedString;
+            });
+            thread.start();
+        }
     }
 
     public void ClearAll(View view) {

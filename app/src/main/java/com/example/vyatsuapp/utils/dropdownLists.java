@@ -13,7 +13,7 @@ public class dropdownLists {
             "ФСиА", "ФТИД", "ФФКС", "ФФиМ", "ФЭФ", "ЭТФ", "ЮИ"};
     private static final String[] DistanceSpecFacs = {"ФЭФ", "ЮИ"};
     private static final String[] DistanceMasterFacs = {"Пед", "ФМиС", "ФПиП", "ФСиА", "ФТИД", "ФФКС",
-           "ФЭФ", "ЭТФ", "ЮИ"};
+            "ФЭФ", "ЭТФ", "ЮИ"};
     private static final String[] DistanceGraduateFacs = {"ФИПНиК", "ФПиП", "ФТИД", "ФФиМ", "ФЭФ"};
     private String selectedEducationFormat; //Очно, Очно-заочно, Заочно
     private String selectedEducationType; //Бакалавриат, Специалитет, Магистратура, Аспирантура
@@ -23,34 +23,28 @@ public class dropdownLists {
         this.selectedEducationType = selectedEducationType;
     }
 
-
     public String[] spFacultyItems() {
         if (selectedEducationFormat.equals("Очно")) {
-            if (selectedEducationType.equals("Бакалавриат")) {
-                return FullTimeBachelorFacs;
-            } else if (selectedEducationType.equals("Специалитет")) {
-                return FullTimeSpecFacs;
-            } else if (selectedEducationType.equals("Магистратура")) {
-                return FullTimeMasterFacs;
-            } else {
-                return FullTimeGraduateFacs;
-            }
+            return switch (selectedEducationType) {
+                case "Бакалавриат" -> FullTimeBachelorFacs;
+                case "Специалитет" -> FullTimeSpecFacs;
+                case "Магистратура" -> FullTimeMasterFacs;
+                default -> FullTimeGraduateFacs;
+            };
         } else if (selectedEducationFormat.equals("Очно-заочно")) {
-            if (selectedEducationType.equals("Бакалавриат")) {
-                return FTDistBachelorFacs;
-            } else if (selectedEducationType.equals("Магистратура")){
-                return new String[] {"ФПИП"};
-            } else return new String[] {};
+            return switch (selectedEducationType) {
+                case "Бакалавриат" -> FTDistBachelorFacs;
+                case "Магистратура" -> new String[] {"ФПИП"};
+                default -> new String[] {};
+            };
         } else {
-            if (selectedEducationFormat.equals("Бакалавриат")) {
-                return DistanceBachelorFacs;
-            } else if (selectedEducationType.equals("Специалитет")) {
-                return DistanceSpecFacs;
-            } else if (selectedEducationType.equals("Магистратура")) {
-                return DistanceMasterFacs;
-            } else {
-                return DistanceGraduateFacs;
-            }
+            return switch (selectedEducationType) {
+                case "Бакалавриат" -> DistanceBachelorFacs;
+                case "Специалитет" -> DistanceSpecFacs;
+                case "Магистратура" -> DistanceMasterFacs;
+                default -> DistanceGraduateFacs;
+
+            };
         }
     }
 }
