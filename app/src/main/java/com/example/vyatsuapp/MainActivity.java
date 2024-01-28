@@ -61,19 +61,19 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 android.R.layout.simple_spinner_item,
                 typeOfEducation);
-        EducationalFormat_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeOfEducation_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        spTypeOfEducation.setPrompt("Укажите тип обучения");
         spTypeOfEducation.setAdapter(new NothingSelectedSpinnerAdapter(
                 typeOfEducation_Adapter,
                 R.layout.contact_spinner_row_nothing_selected,
                 this));
 
-        spEducationalFormat.setPrompt("Укажите форму обучения");
+
         spEducationalFormat.setAdapter(new NothingSelectedSpinnerAdapter(
                 EducationalFormat_Adapter,
-                R.layout.contact_spinner_row_nothing_selected,
+                R.layout.contact_spinner_row_nothing_selected2,
                 this));
+        spEducationalFormat.setPrompt("Укажите тип обучения");
         ///////////////////////////////////////////////////////////////////////////////////////////
 
         ///////////////////////////Обработка выбора в выпадающих списках///////////////////////////
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                                 spFaculties.setPrompt("Выберите факультет");
                                 spFaculties.setAdapter(new NothingSelectedSpinnerAdapter(
                                         Faculties_Adapter,
-                                        R.layout.contact_spinner_row_nothing_selected,
+                                        R.layout.contact_spinner_row_nothing_selected3,
                                         MainActivity.this));
 
                                 spFaculties.setVisibility(View.VISIBLE);
@@ -165,6 +165,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ClearAll(View view) {
+        spEducationalFormat.setSelection(0);
+        spTypeOfEducation.setSelection(0);
+        spFaculties.setSelection(0);
         EditText courseField = findViewById(R.id.Course);
         result = findViewById(R.id.timetable);
         courseField.setText("");

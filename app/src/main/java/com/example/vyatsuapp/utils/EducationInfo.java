@@ -3,6 +3,7 @@ package com.example.vyatsuapp.utils;
 import android.widget.EditText;
 
 import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 
@@ -23,6 +24,7 @@ public class EducationInfo {
     private String Course;
     private String TypeOfEduc;
 
+
     public EducationInfo(String EducFormat, String TypeOfEduc, String Faculties, EditText Course) {
         this.EducFormat = EducFormat;
         this.TypeOfEduc = TypeOfEduc;
@@ -41,13 +43,14 @@ public class EducationInfo {
         String URL = VyatsuURL + secondPartURL;
         try {
             var document = Jsoup.connect(URL).maxBodySize(0).get();
-            return document.select("div.grpPeriod").text();
+            return document.select("div.fak_name:contains(Пединститут)").text();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    public String getFaculty(){ return Faculty; }
+    public String getFaculty() { return Faculty; }
 
     public String getCourse(){
         return Course;

@@ -8,4 +8,4 @@
     android:ellipsize="marquee"
     android:textSize="18sp"
     android:textColor="#808080"
-    android:text="@string/SpinnerDefaultText1" />
+    android:text="@string/SpinnerDefaultText3" />

@@ -4,4 +4,7 @@
     <string name="confirm">Подтвердить</string>
     <string name="outTimetable">Расписание будет здесь</string>
     <string name="clear">Очистить</string>
+    <string name="SpinnerDefaultText1">Укажите форму обучения</string>
+    <string name="SpinnerDefaultText2">Укажите тип обучения</string>
+    <string name="SpinnerDefaultText3">Выберите факультет</string>
 </resources>
