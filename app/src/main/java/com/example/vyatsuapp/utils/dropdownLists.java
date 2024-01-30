@@ -31,22 +31,22 @@ public class dropdownLists {
     public String[] spFacultyItems() {
         if (selectedEducationFormat.equals("Очно")) {
             return switch (selectedEducationType) {
-                case "Бакалавриат" -> FullTimeBachelorFacs;
-                case "Специалитет" -> FullTimeSpecFacs;
-                case "Магистратура" -> FullTimeMasterFacs;
+                case "Бакалавр" -> FullTimeBachelorFacs;
+                case "Специалист" -> FullTimeSpecFacs;
+                case "Магистр" -> FullTimeMasterFacs;
                 default -> FullTimeGraduateFacs;
             };
         } else if (selectedEducationFormat.equals("Очно-заочно")) {
             return switch (selectedEducationType) {
-                case "Бакалавриат" -> FTDistBachelorFacs;
-                case "Магистратура" -> new String[] {"Факультет педагогики и психологии"};
+                case "Бакалавр" -> FTDistBachelorFacs;
+                case "Магистр" -> new String[] {"Факультет педагогики и психологии"};
                 default -> new String[] {};
             };
         } else {
             return switch (selectedEducationType) {
-                case "Бакалавриат" -> DistanceBachelorFacs;
-                case "Специалитет" -> DistanceSpecFacs;
-                case "Магистратура" -> DistanceMasterFacs;
+                case "Бакалавр" -> DistanceBachelorFacs;
+                case "Специалист" -> DistanceSpecFacs;
+                case "Магистр" -> DistanceMasterFacs;
                 default -> DistanceGraduateFacs;
 
             };

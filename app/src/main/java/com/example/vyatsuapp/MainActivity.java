@@ -16,11 +16,13 @@ import com.example.vyatsuapp.utils.EducationInfo;
 import com.example.vyatsuapp.utils.NothingSelectedSpinnerAdapter;
 import com.example.vyatsuapp.utils.dropdownLists;
 
+import java.util.Calendar;
+
 public class MainActivity extends AppCompatActivity {
     private TextView result;
 
     private static final String[] EducationalFormat = {"Очно", "Очно-заочно", "Заочно"};
-    private static final String[] typeOfEducation = {"Бакалавриат", "Специалитет", "Магистратура", "Аспирантура"};
+    private static final String[] typeOfEducation = {"Бакалавр", "Специалист", "Магистр", "Аспирант"};
 
     public Spinner spEducationalFormat;
     public Spinner spTypeOfEducation;
@@ -33,10 +35,17 @@ public class MainActivity extends AppCompatActivity {
     private String selected_TypeEd = null;
     private String selected_EdForm = null;
     private String selected_Faculty = null;
+    private int Semester = 1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Calendar calendar = Calendar.getInstance();
+        if (calendar.get(Calendar.MONTH) <= 8) {
+            Semester = 2;
+        } else {
+            Semester = 1;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -153,7 +162,8 @@ public class MainActivity extends AppCompatActivity {
                             selected_EdForm,
                             selected_TypeEd,
                             selected_Faculty,
-                            courseField);
+                            courseField,
+                            Semester);
                     String receivedInfo = educationInfo.ConnectAndGetInfo();
                     runOnUiThread(() -> result.setText(receivedInfo));
                 } catch (Exception e) {
