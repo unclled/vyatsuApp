@@ -13,43 +13,18 @@ public class dropdownLists {
     private static final String[] FullTimeGraduateFacs = {"Институт биологии и биотехнологии", "Институт химии и экологии", "Факультет автоматики и вычислительной техники", "Факультет истории, политических наук и культурологии",
             "Факультет компьютерных и физико-математических наук", "Факультет лингвистики", "Факультет менеджмента и сервиса", "Факультет педагогики и психологии", "Факультет строительства и архитектуры", "Факультет технологий, инжиниринга и дизайна",
             "Факультет физической культуры и спорта", "Факультет филологии и медиакоммуникаций", "Факультет экономики и финансов", "Электротехнический факультет", "Юридический институт"};
-    private static final String[] FTDistBachelorFacs = {"Факультет менеджмента и сервиса", "Факультет педагогики и психологии", "Факультет строительства и архитектуры", "Факультет экономики и финансов", "Юридический институт"};
-    private static final String[] DistanceBachelorFacs = {"Пединститут", "Факультет автоматики и вычислительной техники", "Факультет истории, политических наук и культурологии", "Факультет менеджмента и сервиса", "Факультет педагогики и психологии",
-            "Факультет строительства и архитектуры", "Факультет технологий, инжиниринга и дизайна", "Факультет физической культуры и спорта", "Факультет филологии и медиакоммуникаций", "Факультет экономики и финансов", "Электротехнический факультет", "Юридический институт"};
-    private static final String[] DistanceSpecFacs = {"Факультет экономики и финансов", "Юридический институт"};
-    private static final String[] DistanceMasterFacs = {"Пединститут", "Факультет менеджмента и сервиса", "Факультет педагогики и психологии", "Факультет строительства и архитектуры", "Факультет технологий, инжиниринга и дизайна", "Факультет физической культуры и спорта",
-            "Факультет экономики и финансов", "Электротехнический факультет", "Юридический институт"};
-    private static final String[] DistanceGraduateFacs = {"Факультет истории, политических наук и культурологии", "Факультет педагогики и психологии", "Факультет технологий, инжиниринга и дизайна", "Факультет филологии и медиакоммуникаций", "Факультет экономики и финансов"};
-    private String selectedEducationFormat; //Очно, Очно-заочно, Заочно
     private String selectedEducationType; //Бакалавриат, Специалитет, Магистратура, Аспирантура
 
-    public dropdownLists(String selectedEducationFormat, String selectedEducationType) {
-        this.selectedEducationFormat = selectedEducationFormat;
+    public dropdownLists(String selectedEducationType) {
         this.selectedEducationType = selectedEducationType;
     }
 
     public String[] spFacultyItems() {
-        if (selectedEducationFormat.equals("Очно")) {
-            return switch (selectedEducationType) {
-                case "Бакалавр" -> FullTimeBachelorFacs;
-                case "Специалист" -> FullTimeSpecFacs;
-                case "Магистр" -> FullTimeMasterFacs;
-                default -> FullTimeGraduateFacs;
-            };
-        } else if (selectedEducationFormat.equals("Очно-заочно")) {
-            return switch (selectedEducationType) {
-                case "Бакалавр" -> FTDistBachelorFacs;
-                case "Магистр" -> new String[] {"Факультет педагогики и психологии"};
-                default -> new String[] {};
-            };
-        } else {
-            return switch (selectedEducationType) {
-                case "Бакалавр" -> DistanceBachelorFacs;
-                case "Специалист" -> DistanceSpecFacs;
-                case "Магистр" -> DistanceMasterFacs;
-                default -> DistanceGraduateFacs;
-
-            };
-        }
+        return switch (selectedEducationType) {
+            case "Бакалавр" -> FullTimeBachelorFacs;
+            case "Специалист" -> FullTimeSpecFacs;
+            case "Магистр" -> FullTimeMasterFacs;
+            default -> FullTimeGraduateFacs;
+        };
     }
 }

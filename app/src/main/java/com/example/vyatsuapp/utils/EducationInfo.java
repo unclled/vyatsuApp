@@ -1,35 +1,26 @@
 package com.example.vyatsuapp.utils;
 
+import android.content.Context;
 import android.widget.EditText;
+import android.widget.Spinner;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.List;
 
 public class EducationInfo {
-    private static final String VyatsuURL = "https://www.vyatsu.ru";
-    private final String FullTimeTimetable = "/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
-    // расписание для очного обучения
-    private final String DistanceCertification = "/internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации и занятий для заочников
-    private final String FullTimeAndDistance = "/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-studentov-ochno-zaochnoy-formy.html";
-    // расписание промежуточной аттестации и занятий для очно-заочного обучения
-    private final String FullTimeCertification = "/internet-gazeta/raspisanie-sessiy-obuchayuschihsya-na-2016-2017-uc.html";
-    // расписание промежуточной аттестации для очников
-    private final String PracticeCertification = "/internet-gazeta/raspisanie-promezhutochnoy-attestatsii-obuchayusch-1.html";
-    // расписание промежуточной аттестации для обучающихся по практике
+    private static final String VyatsuURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
     private String Faculty;
-    private String EducFormat;
     private String Course;
     private String TypeOfEduc;
+    private List<String> groups = new ArrayList<>();
     private int Semester;
 
-
-    public EducationInfo(String EducFormat, String TypeOfEduc, String Faculties, EditText Course, int Semester) {
-        this.EducFormat = EducFormat;
+    public EducationInfo(String TypeOfEduc, String Faculties, EditText Course, int Semester) {
         this.TypeOfEduc = TypeOfEduc;
         this.Faculty = Faculties;
         this.Course = Course.getText().toString();
@@ -37,17 +28,11 @@ public class EducationInfo {
     }
 
     public String ConnectAndGetInfo() {
-        StringBuilder groups = new StringBuilder();
-        String secondPartURL, reveivedInfo;
-        switch (EducFormat) {
-            case "Очно" -> secondPartURL = FullTimeTimetable;
-            case "Очно-заочно" -> secondPartURL = FullTimeAndDistance;
-            default -> secondPartURL = DistanceCertification;
-        }
+        StringBuilder PDFurlForGroup = new StringBuilder();
+        String receivedInfo;
 
-        String URL = VyatsuURL + secondPartURL;
         try {
-            var document = Jsoup.connect(URL).maxBodySize(0).get();
+            var document = Jsoup.connect(VyatsuURL).maxBodySize(0).get();
             Elements programElements = document.select(".headerEduPrograms"); //Выбираем все заголовки типов обучения
 
             for (Element programElement : programElements) {
@@ -67,12 +52,12 @@ public class EducationInfo {
 
                                 if (groupName.contains("-" + Course)) { //Если курс группы совпадает с выбранным
                                     Elements getPDFs = groupElement.nextElementSiblings().select("a"); //Выбираем все ссылки
-
                                     for (Element getPDF : getPDFs) {
                                         String PDFurl = getPDF.attr("href"); //Ссылка на таблицу
 
                                         if (PDFurl.contains("_" + Semester + "_")) {
-                                            groups.append(groupName).
+                                            groups.add(groupName);
+                                            PDFurlForGroup.append(groupName).
                                                     append(": ").
                                                     append(VyatsuURL).
                                                     append(PDFurl).
@@ -81,29 +66,27 @@ public class EducationInfo {
                                     }
                                 }
                             }
+
                         }
+
                     }
+
                 }
+
             }
-            reveivedInfo = String.valueOf(groups);
-            return reveivedInfo;
+            receivedInfo = String.valueOf(PDFurlForGroup);
+            return receivedInfo;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
     }
 
+    public List<String> getGroups() { return groups; }
+
     public String getFaculty() { return Faculty; }
 
-    public String getCourse(){
-        return Course;
-    }
+    public String getCourse() { return Course; }
 
-    public String getEducFormat(){
-        return EducFormat;
-    }
-
-    public String getTypeOfEduc(){
-        return TypeOfEduc;
-    }
+    public String getTypeOfEduc() { return TypeOfEduc; }
 }
