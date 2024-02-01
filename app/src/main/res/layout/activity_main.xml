@@ -77,12 +77,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:animateLayoutChanges="true"
             android:autofillHints=""
             android:hint="@string/Course"
             android:inputType="numberDecimal"
             android:padding="10dp"
+            android:textColorHighlight="#000000"
+            android:textColorHint="#808080"
             android:textSize="24sp"
-            android:animateLayoutChanges="true"
             android:visibility="gone" />
 
         <Spinner
@@ -99,9 +101,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
-            android:onClick="ConfirmButtonPressed"
             android:backgroundTint="@color/darkBlue"
-            android:text="@string/confirm" />
+            android:onClick="ConfirmButtonPressed"
+            android:text="@string/confirm"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#FFFFFF" />
 
         <Button
             android:id="@+id/SaveButton"
@@ -109,9 +113,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/darkBlue"
             android:onClick="SaveButtonPressed"
             android:text="@string/SaveButton"
-            android:backgroundTint="@color/darkBlue"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#FFFFFF"
             android:visibility="gone" />
 
         <Button
@@ -119,9 +125,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/clear"
             android:backgroundTint="@color/darkBlue"
-            android:onClick="ClearAll" />
+            android:onClick="ClearAll"
+            android:text="@string/clear"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#FFFFFF" />
 
 </LinearLayout>
 </RelativeLayout>

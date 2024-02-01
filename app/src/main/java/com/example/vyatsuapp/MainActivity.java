@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ConfirmButtonPressed(View view) {
+        System.out.println("Зашли");
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
         if (selected_Faculty == null || selected_TypeEd == null || courseField.getText().toString().equals("")) {
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                             selected_Faculty,
                             Course,
                             Semester);
-                    //String receivedInfo = educationInfo.ConnectAndGetInfo(); полученная инфа
+                    String receivedInfo = educationInfo.ConnectAndGetInfo();
 
                     runOnUiThread(() -> {
                         List<String> groups;
