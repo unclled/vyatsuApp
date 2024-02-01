@@ -10,7 +10,7 @@
         <item name="colorPrimary">@color/brightBlue</item>
         <item name="colorPrimaryDark">@color/brightBlue</item>
         <item name="android:textColorPrimary">#CE000000</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/brightBG</item>
     </style>
 
 </resources>

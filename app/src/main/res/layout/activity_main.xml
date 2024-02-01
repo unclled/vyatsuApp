@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
@@ -55,45 +56,86 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/upperBG"
-        android:layout_margin="10dp"
         android:orientation="vertical">
 
-        <Spinner
-            android:id="@+id/typeOfEducation"
+        <com.skydoves.powerspinner.PowerSpinnerView
+            android:id="@+id/EducationTypeSpinner"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:background="@color/brightBG"
+            android:hint="@string/selectEducationType"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
+            android:textSize="18sp"
+            app:spinner_arrow_show="false"
+            app:spinner_item_array="@array/EducationType"
+            app:spinner_divider_show="true"
+            app:spinner_divider_size="0.4dp"
+            app:spinner_divider_color="@color/darkBlue"
+            app:spinner_item_height="46dp"
+            app:spinner_popup_animation="dropdown"
+            app:spinner_popup_background="@color/brightBG" />
 
-        <Spinner
-            android:id="@+id/Faculty"
+        <com.skydoves.powerspinner.PowerSpinnerView
+            android:id="@+id/FacultiesSpinner"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
-            android:animateLayoutChanges="true"
-            android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@color/brightBG"
+            android:padding="10dp"
+            android:hint="@string/selectEducationType"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
+            android:textSize="18sp"
+            android:visibility="gone"
+            app:spinner_arrow_show="false"
+            app:spinner_divider_show="true"
+            app:spinner_divider_size="0.4dp"
+            app:spinner_divider_color="@color/darkBlue"
+            app:spinner_item_height="46dp"
+            app:spinner_popup_animation="dropdown"
+            app:spinner_popup_background="@color/brightBG"
+            app:spinner_popup_elevation="14dp"
+            />
 
         <EditText
             android:id="@+id/Course"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             android:animateLayoutChanges="true"
             android:autofillHints=""
             android:hint="@string/Course"
             android:inputType="numberDecimal"
             android:padding="10dp"
+            android:textAlignment="center"
             android:textColorHighlight="#000000"
             android:textColorHint="#808080"
             android:textSize="24sp"
             android:visibility="gone" />
 
-        <Spinner
-            android:id="@+id/Groups"
+        <com.skydoves.powerspinner.PowerSpinnerView
+            android:id="@+id/GroupSpinner"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
-            android:animateLayoutChanges="true"
-            android:visibility="gone" />
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:background="@color/brightBG"
+            android:padding="10dp"
+            android:hint="@string/selectEducationType"
+            android:textColor="@color/black"
+            android:textColorHint="@color/grey"
+            android:textSize="18sp"
+            android:visibility="gone"
+            app:spinner_arrow_show="false"
+            app:spinner_divider_show="true"
+            app:spinner_divider_size="0.4dp"
+            app:spinner_divider_color="@color/darkBlue"
+            app:spinner_item_height="46dp"
+            app:spinner_popup_animation="dropdown"
+            app:spinner_popup_background="@color/brightBG"
+            app:spinner_popup_elevation="14dp" />
 
         <Button
             android:id="@+id/confirm_faculty_course"
@@ -131,5 +173,6 @@
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF" />
 
-</LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>

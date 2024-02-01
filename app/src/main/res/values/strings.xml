@@ -4,9 +4,9 @@
     <string name="confirm">Подтвердить</string>
     <string name="outTimetable">Расписание будет здесь</string>
     <string name="clear">Очистить</string>
-    <string name="SpinnerDefaultText1">Выберите группу</string>
-    <string name="SpinnerDefaultText2">Выберите тип обучения</string>
-    <string name="SpinnerDefaultText3">Выберите факультет</string>
+    <string name="selectGroup">Выберите группу</string>
+    <string name="selectEducationType">Выберите тип обучения</string>
+    <string name="selectFaculty">Выберите факультет</string>
     <string name="SaveButton">Сохранить данные</string>
     <string name="Greetings">Информация об обучении</string>
     <string name="toolTip">Заполни все поля, чтобы получить актуальное расписание</string>

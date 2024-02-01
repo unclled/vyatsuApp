@@ -5,4 +5,5 @@
     <color name="brightBG">#f1f1f1</color>
     <color name="darkBlue">#076dab</color>
     <color name="brightBlue">#0da8d6</color>
+    <color name="grey">#808080</color>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.vyatsuapp;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -9,27 +10,25 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.vyatsuapp.utils.EducationInfo;
-import com.example.vyatsuapp.utils.NothingSelectedSpinnerAdapter;
-import com.example.vyatsuapp.utils.dropdownLists;
+import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
+import com.skydoves.powerspinner.PowerSpinnerView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String[] typeOfEducation = {"Бакалавр", "Специалист", "Магистр", "Аспирант"};
 
-    public Spinner spTypeOfEducation;
-    public Spinner spFaculties;
-    public Spinner spGroups;
+    public PowerSpinnerView spTypeOfEducation;
+    public PowerSpinnerView spFaculties;
+    public PowerSpinnerView spGroups;
 
     public Button confirmCourseFacultyButton;
 
@@ -56,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Semester = 1;
         }
+
+        spTypeOfEducation = findViewById(R.id.EducationTypeSpinner);
+        spFaculties = findViewById(R.id.FacultiesSpinner);
+        spGroups = findViewById(R.id.GroupSpinner);
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         selected_TypeEd = sharedPreferences.getString("EducationType", null);
         selected_Faculty = sharedPreferences.getString("Faculty", null);
@@ -64,9 +68,6 @@ public class MainActivity extends AppCompatActivity {
 
         courseField = findViewById(R.id.Course);
         confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
-        spTypeOfEducation = findViewById(R.id.typeOfEducation);
-        spFaculties = findViewById(R.id.Faculty);
-        spGroups = findViewById(R.id.Groups);
         progressBar = findViewById(R.id.progressBar);
 
         isFirstStart();
@@ -87,70 +88,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getStudentInfo() {
-        //////////////////////////Создание адаптеров и выпадающих списков//////////////////////////
-        ArrayAdapter<String> typeOfEducation_Adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                typeOfEducation);
-        typeOfEducation_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spTypeOfEducation.setAdapter(new NothingSelectedSpinnerAdapter(
-                typeOfEducation_Adapter,
-                R.layout.contact_spinner_row_nothing_selected2,
-                this));
-        ///////////////////////////////////////////////////////////////////////////////////////////
-
         ///////////////////////////Обработка выбора в выпадающих списках///////////////////////////
-        spTypeOfEducation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object selectedItem_TypeEd = parent.getItemAtPosition(position);
+        spTypeOfEducation.setOnSpinnerItemSelectedListener(
+                (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
+            selected_TypeEd = newItem;
+            String[] selected_Faculties = switch (newItem) {
+                case "Бакалавр" -> getResources().getStringArray(R.array.FullTimeBachelorFacs);
+                case "Специалист" -> getResources().getStringArray(R.array.FullTimeSpecFacs);
+                case "Магистр" -> getResources().getStringArray(R.array.FullTimeMasterFacs);
+                default -> getResources().getStringArray(R.array.FullTimeGraduateFacs);
+            };
+            spFaculties.setVisibility(View.VISIBLE);
+            List<String> Faculties = new ArrayList<>(Arrays.asList(selected_Faculties));
+            spFaculties.setItems(Faculties);
 
-                if (selectedItem_TypeEd != null) { //если что-то выбрано во втором списке
-                    selected_TypeEd = selectedItem_TypeEd.toString();
-
-                    //создаем экземпляр класса для оторбражения возможных факультетов
-                    dropdownLists spFaculty = new dropdownLists(selected_TypeEd);
-                    String[] chosenFaculties = spFaculty.spFacultyItems();
-
-                    //создаем адаптер для отображения вариантов для последнего списка
-                    ArrayAdapter<String> Faculties_Adapter = new ArrayAdapter<>(
-                            MainActivity.this,
-                            android.R.layout.simple_spinner_item,
-                            chosenFaculties);
-                    Faculties_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                    spFaculties.setPrompt("Выберите факультет");
-                    spFaculties.setAdapter(new NothingSelectedSpinnerAdapter(
-                            Faculties_Adapter,
-                            R.layout.contact_spinner_row_nothing_selected3,
-                            MainActivity.this));
-
-                    spFaculties.setVisibility(View.VISIBLE);
-                    spFaculties.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            Object selectedItem_Faculty = parent.getItemAtPosition(position);
-
-                            if (selectedItem_Faculty != null) { //если что-то выбрано во третьем списке
-                                selected_Faculty = selectedItem_Faculty.toString();
-                                courseField.setVisibility(View.VISIBLE);
-                            }
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {}
-                    });
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            spFaculties.setOnSpinnerItemSelectedListener(
+                    (OnSpinnerItemSelectedListener<String>) (oldIndex1, oldItem1, newIndex1, newItem1) -> {
+                selected_Faculty = newItem1;
+                courseField.setVisibility(View.VISIBLE);
+            });
         });
     }
 
     public void ConfirmButtonPressed(View view) {
-        System.out.println("Зашли");
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
         if (selected_Faculty == null || selected_TypeEd == null || courseField.getText().toString().equals("")) {
@@ -176,18 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         List<String> groups;
                         groups = educationInfo.getGroups();
-
-                        ArrayAdapter<String> groups_Adapter = new ArrayAdapter<>(
-                                this,
-                                android.R.layout.simple_spinner_item,
-                                groups);
-                        groups_Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                        spGroups.setAdapter(new NothingSelectedSpinnerAdapter(
-                                groups_Adapter,
-                                R.layout.contact_spinner_row_nothing_selected,
-                                this));
-
+                        spGroups.setItems(groups);
                         progressBar.setVisibility(ProgressBar.INVISIBLE);
                         spGroups.setVisibility(View.VISIBLE);
 
@@ -198,17 +147,9 @@ public class MainActivity extends AppCompatActivity {
                         confirmCourseFacultyButton.setVisibility(View.GONE);
                         SaveButton.setVisibility(View.VISIBLE);
 
-                        spGroups.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                Object selectedItem_Group = parent.getItemAtPosition(position);
-                                if (selectedItem_Group != null)
-                                    selected_Group = selectedItem_Group.toString();
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {}
-                        });
+                        spGroups.setOnSpinnerItemSelectedListener(
+                                (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) ->
+                                        selected_Group = newItem);
                     });
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -234,12 +175,11 @@ public class MainActivity extends AppCompatActivity {
         editor.clear();
         editor.apply();
 
-        getStudentInfo();
+        spTypeOfEducation.clearSelectedItem();
+        spFaculties.clearSelectedItem();
+        spGroups.clearSelectedItem();
 
-        spTypeOfEducation.setSelection(0);
-        spFaculties.setSelection(0);
-        EditText courseField = findViewById(R.id.Course);
-        courseField.setText("");
+        getStudentInfo();
 
         spGroups.setVisibility(View.GONE);
         courseField.setVisibility(View.GONE);
