@@ -3,7 +3,9 @@ package com.example.vyatsuapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -13,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vyatsuapp.utils.EducationInfo;
@@ -24,8 +25,6 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView result;
-
     private static final String[] typeOfEducation = {"Бакалавр", "Специалист", "Магистр", "Аспирант"};
 
     public Spinner spTypeOfEducation;
@@ -38,33 +37,56 @@ public class MainActivity extends AppCompatActivity {
 
     private String selected_TypeEd = null;
     private String selected_Faculty = null;
+    private String selected_Group = null;
+    private int Course = 0;
     private int Semester = 1;
 
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         Calendar calendar = Calendar.getInstance();
         if (calendar.get(Calendar.MONTH) <= 8) {
             Semester = 2;
         } else {
             Semester = 1;
         }
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        selected_TypeEd = sharedPreferences.getString("EducationType", null);
+        selected_Faculty = sharedPreferences.getString("Faculty", null);
+        Course = sharedPreferences.getInt("Course", 0);
+        selected_Group = sharedPreferences.getString("Group", null);
 
         courseField = findViewById(R.id.Course);
         confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
-        result = findViewById(R.id.timetable);
         spTypeOfEducation = findViewById(R.id.typeOfEducation);
         spFaculties = findViewById(R.id.Faculty);
         spGroups = findViewById(R.id.Groups);
         progressBar = findViewById(R.id.progressBar);
 
-        spFaculties.setVisibility(View.GONE);
-        spGroups.setVisibility(View.GONE);
-        courseField.setVisibility(View.GONE);
+        isFirstStart();
+    }
 
+    private void isFirstStart() {
+        SharedPreferences sp = getSharedPreferences("hasStudentInfo", Context.MODE_PRIVATE);
+        boolean hasStudentInfo = sp.getBoolean("hasStudentInfo", false);
+        System.out.println(hasStudentInfo);
+        if (!hasStudentInfo) { //Если нет информации о студенте
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean("hasStudentInfo", true);
+            editor.apply();
+            getStudentInfo();
+        } else {
+                //создать новую активность
+        }
+    }
+
+    private void getStudentInfo() {
         //////////////////////////Создание адаптеров и выпадающих списков//////////////////////////
         ArrayAdapter<String> typeOfEducation_Adapter = new ArrayAdapter<>(
                 this,
@@ -117,20 +139,15 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onNothingSelected(AdapterView<?> parent) {
-                        }
+                        public void onNothingSelected(AdapterView<?> parent) {}
                     });
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
-
-
     }
-    ///////////////////////////////////////////////////////////////////////////////////////////
 
     public void ConfirmButtonPressed(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -143,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
         }
         else {
+            Course = Integer.parseInt(courseField.getText().toString());
             progressBar.setVisibility(ProgressBar.VISIBLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             Thread thread = new Thread(() -> {
@@ -150,9 +168,9 @@ public class MainActivity extends AppCompatActivity {
                     EducationInfo educationInfo = new EducationInfo(
                             selected_TypeEd,
                             selected_Faculty,
-                            courseField,
+                            Course,
                             Semester);
-                    String receivedInfo = educationInfo.ConnectAndGetInfo();
+                    //String receivedInfo = educationInfo.ConnectAndGetInfo(); полученная инфа
 
                     runOnUiThread(() -> {
                         List<String> groups;
@@ -168,13 +186,28 @@ public class MainActivity extends AppCompatActivity {
                                 groups_Adapter,
                                 R.layout.contact_spinner_row_nothing_selected,
                                 this));
-                        spFaculties.setVisibility(View.GONE);
-                        spTypeOfEducation.setVisibility(View.GONE);
-                        courseField.setVisibility(View.GONE);
+
                         progressBar.setVisibility(ProgressBar.INVISIBLE);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                         spGroups.setVisibility(View.VISIBLE);
-                        result.setText(receivedInfo);
+
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                        Button SaveButton = findViewById(R.id.SaveButton);
+
+                        confirmCourseFacultyButton.setVisibility(View.GONE);
+                        SaveButton.setVisibility(View.VISIBLE);
+
+                        spGroups.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                Object selectedItem_Group = parent.getItemAtPosition(position);
+                                if (selectedItem_Group != null)
+                                    selected_Group = selectedItem_Group.toString();
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {}
+                        });
                     });
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -184,16 +217,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void SaveButtonPressed(View view) {
+        if (selected_Group != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("EducationType", selected_TypeEd);
+            editor.putString("Faculty", selected_Faculty);
+            editor.putInt("Course", Course);
+            editor.putString("Group", selected_Group);
+            editor.apply();
+        }
+    }
+
     public void ClearAll(View view) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        getStudentInfo();
+
         spTypeOfEducation.setSelection(0);
         spFaculties.setSelection(0);
         EditText courseField = findViewById(R.id.Course);
-        result = findViewById(R.id.timetable);
         courseField.setText("");
+
         spGroups.setVisibility(View.GONE);
         courseField.setVisibility(View.GONE);
         spFaculties.setVisibility(View.GONE);
         spTypeOfEducation.setVisibility(View.VISIBLE);
-        result.setText("Расписание будет здесь");
+        confirmCourseFacultyButton.setVisibility(View.VISIBLE);
+        Button SaveButton = findViewById(R.id.SaveButton);
+        SaveButton.setVisibility(View.GONE);
     }
 }

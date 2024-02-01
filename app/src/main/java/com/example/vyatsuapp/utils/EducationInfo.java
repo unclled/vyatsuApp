@@ -1,9 +1,5 @@
 package com.example.vyatsuapp.utils;
 
-import android.content.Context;
-import android.widget.EditText;
-import android.widget.Spinner;
-
 import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -15,15 +11,16 @@ import java.util.List;
 public class EducationInfo {
     private static final String VyatsuURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
     private String Faculty;
-    private String Course;
+    private int Course;
     private String TypeOfEduc;
     private List<String> groups = new ArrayList<>();
     private int Semester;
+    private String Group;
 
-    public EducationInfo(String TypeOfEduc, String Faculties, EditText Course, int Semester) {
+    public EducationInfo(String TypeOfEduc, String Faculties, int Course, int Semester) {
         this.TypeOfEduc = TypeOfEduc;
         this.Faculty = Faculties;
-        this.Course = Course.getText().toString();
+        this.Course = Course;
         this.Semester = Semester;
     }
 
@@ -86,7 +83,7 @@ public class EducationInfo {
 
     public String getFaculty() { return Faculty; }
 
-    public String getCourse() { return Course; }
+    public int getCourse() { return Course; }
 
     public String getTypeOfEduc() { return TypeOfEduc; }
 }
