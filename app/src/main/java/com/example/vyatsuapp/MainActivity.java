@@ -4,18 +4,22 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.dx.dxloadingbutton.lib.LoadingButton;
 import com.example.vyatsuapp.utils.EducationInfo;
+import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     public PowerSpinnerView spFaculties;
     public PowerSpinnerView spGroups;
 
-    public Button confirmCourseFacultyButton;
+    public CircularProgressButton confirmCourseFacultyButton;
 
     public EditText courseField;
 
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private int Course = 0;
     private int Semester = 1;
 
-    private ProgressBar progressBar;
 
     private SharedPreferences sharedPreferences;
 
@@ -68,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
         courseField = findViewById(R.id.Course);
         confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
-        progressBar = findViewById(R.id.progressBar);
 
         isFirstStart();
     }
@@ -77,13 +79,15 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("hasStudentInfo", Context.MODE_PRIVATE);
         boolean hasStudentInfo = sp.getBoolean("hasStudentInfo", false);
         System.out.println(hasStudentInfo);
-        if (!hasStudentInfo) { //Если нет информации о студенте
+        if (!hasStudentInfo || selected_TypeEd == null || selected_Faculty == null
+                || Course == 0 || selected_Group == null) { //Если нет какой-либо информации о студенте
             SharedPreferences.Editor editor = sp.edit();
             editor.putBoolean("hasStudentInfo", true);
             editor.apply();
             getStudentInfo();
-        } else {
-                //создать новую активность
+        } else { //запуск активности с расписанием
+            //Intent intent = new Intent(this, BasicMainActivity.class);
+            //startActivity(intent);
         }
     }
 
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Course = Integer.parseInt(courseField.getText().toString());
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            confirmCourseFacultyButton.startAnimation();
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             Thread thread = new Thread(() -> {
                 try {
@@ -137,12 +141,15 @@ public class MainActivity extends AppCompatActivity {
                         List<String> groups;
                         groups = educationInfo.getGroups();
                         spGroups.setItems(groups);
-                        progressBar.setVisibility(ProgressBar.INVISIBLE);
+                        /*Bitmap bitmap = BitmapFactory.decodeResource(view.getContext().getResources(),
+                                R.drawable.done_background);
+                        confirmCourseFacultyButton.doneLoadingAnimation(Color.parseColor("#076dab"), bitmap);*/
+                        confirmCourseFacultyButton.revertAnimation();
                         spGroups.setVisibility(View.VISIBLE);
 
                         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                        Button SaveButton = findViewById(R.id.SaveButton);
+                        LoadingButton SaveButton = findViewById(R.id.SaveButton);
 
                         confirmCourseFacultyButton.setVisibility(View.GONE);
                         SaveButton.setVisibility(View.VISIBLE);
@@ -159,14 +166,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void SaveButtonPressed(View view) {
+    public void SaveButtonPressed(View view) throws InterruptedException {
+        LoadingButton saveButton = findViewById(R.id.SaveButton);
         if (selected_Group != null) {
+            saveButton.startLoading();
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("EducationType", selected_TypeEd);
             editor.putString("Faculty", selected_Faculty);
             editor.putInt("Course", Course);
             editor.putString("Group", selected_Group);
             editor.apply();
+            saveButton.loadingSuccessful();
+            Intent intent = new Intent(this, BasicMainActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -178,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         spTypeOfEducation.clearSelectedItem();
         spFaculties.clearSelectedItem();
         spGroups.clearSelectedItem();
+        courseField.setText("");
 
         getStudentInfo();
 
@@ -186,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         spFaculties.setVisibility(View.GONE);
         spTypeOfEducation.setVisibility(View.VISIBLE);
         confirmCourseFacultyButton.setVisibility(View.VISIBLE);
-        Button SaveButton = findViewById(R.id.SaveButton);
+        LoadingButton SaveButton = findViewById(R.id.SaveButton);
         SaveButton.setVisibility(View.GONE);
     }
 }
