@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/brightBG"
@@ -36,6 +37,7 @@
             android:text="@string/toolTip"
             android:textColor="@color/white"
             android:textSize="14sp" />
+
 
     </RelativeLayout>
 
@@ -124,7 +126,6 @@
             android:layout_gravity="left|center"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-
             android:animateLayoutChanges="true"
             android:background="@android:color/transparent"
             android:fontFamily="@font/montserrat_bold"
@@ -194,11 +195,12 @@
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
             android:visibility="gone"
-            app:finalCornerAngle="16dp"
+            app:finalCornerAngle="40dp"
             app:initialCornerAngle="40dp"
             app:spinning_bar_color="#FFF"
             app:spinning_bar_padding="8dp"
-            app:spinning_bar_width="6dp" />
+            app:spinning_bar_width="6dp"
+            />
 
         <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/confirm_faculty_course"
@@ -214,6 +216,7 @@
             android:text="@string/confirm"
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
+            app:finalCornerAngle="40dp"
             app:initialCornerAngle="40dp"
             app:spinning_bar_color="#FFF"
             app:spinning_bar_padding="8dp"
@@ -259,6 +262,14 @@
         app:sv_stepNumberTextSize="14sp"
         app:sv_stepPadding="12dp"
         app:sv_stepViewStyle="@style/StepView" />
+
+    <View
+        android:id="@+id/animate_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="@color/darkBlue"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

@@ -1,14 +1,21 @@
 package com.example.vyatsuapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -17,7 +24,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.dx.dxloadingbutton.lib.LoadingButton;
 import com.example.vyatsuapp.utils.EducationInfo;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.shuhart.stepview.StepView;
@@ -51,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     Animation showSpinner;
     Animation translateButtons;
 
+    Bitmap bitmap;
+
     Button ClearButton;
 
     private StepView stepView;
@@ -73,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         ClearButton = findViewById(R.id.clear_button);
         SaveButton = findViewById(R.id.SaveButton);
         stepView = findViewById(R.id.stepView);
+        bitmap = BitmapFactory.decodeResource(getResources(), com.github.leandroborgesferreira.loadingbutton.R.drawable.ic_done_white_48dp);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         selected_TypeEd = sharedPreferences.getString("EducationType", null);
@@ -101,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
             getStudentInfo();
         } else { //запуск активности с расписанием
-            //Intent intent = new Intent(this, BasicMainActivity.class);
-            //startActivity(intent);
+            Intent intent = new Intent(this, BasicMainActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -175,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
                                 Course,
                                 Semester);
                         String receivedInfo = educationInfo.ConnectAndGetInfo();
-
                         runOnUiThread(() -> {
                             List<String> groups;
                             groups = educationInfo.getGroups();
@@ -183,11 +191,9 @@ public class MainActivity extends AppCompatActivity {
                                 stepView.done(true);
                                 stepView.go(2, true);
                                 spGroups.setItems(groups);
-                                /*Bitmap bitmap = BitmapFactory.decodeResource(view.getContext().getResources(),
-                                      R.drawable.done_background);
-                                confirmCourseFacultyButton.doneLoadingAnimation(Color.parseColor("#076dab"), bitmap);*/
-                                confirmCourseFacultyButton.revertAnimation();
 
+                                //confirmCourseFacultyButton.doneLoadingAnimation(1, bitmap);
+                                confirmCourseFacultyButton.revertAnimation();
                                 spGroups.setVisibility(View.VISIBLE);
                                 confirmCourseFacultyButton.setVisibility(View.GONE);
                                 SaveButton.setVisibility(View.VISIBLE);
@@ -222,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void SaveButtonPressed(View view) throws InterruptedException {
+    public void SaveButtonPressed(View view) {
         if (selected_Group != null) {
             SaveButton.startAnimation();
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -231,10 +237,49 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("Course", Course);
             editor.putString("Group", selected_Group);
             editor.apply();
-            SaveButton.revertAnimation();
-            Intent intent = new Intent(this, BasicMainActivity.class);
-            startActivity(intent);
+            toNextPage();
         }
+        // TODO на основе полученных данных отделить ссылку на расписание, а также сделать так
+        // TODO чтобы выбиралось только первое расписание в EducationInfo
+    }
+
+    private void toNextPage() {
+        View animate_view = findViewById(R.id.animate_view);
+        int[] coordinates = new int[2];
+        SaveButton.getLocationInWindow(coordinates);
+        int cx = coordinates[0] + SaveButton.getWidth() / 2 - animate_view.getLeft();
+        int cy = coordinates[1] + SaveButton.getHeight() / 2 - animate_view.getTop() - 100;
+        SaveButton.doneLoadingAnimation(1, bitmap);
+
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            Animator anim = ViewAnimationUtils.createCircularReveal(animate_view, cx, cy, 0f, getResources().getDisplayMetrics().heightPixels * 1.2f);
+            anim.setDuration(500);
+            anim.setInterpolator(new AccelerateDecelerateInterpolator());
+            animate_view.setVisibility(View.VISIBLE);
+            anim.start();
+
+            anim.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(@NonNull Animator animation) {
+                    handler.postDelayed(() -> {
+                        SaveButton.revertAnimation();
+                        animate_view.setVisibility(View.INVISIBLE);
+                    }, 200);
+                }
+
+                @Override
+                public void onAnimationEnd(@NonNull Animator animation) {
+                    startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
+                    overridePendingTransition(0, 0);
+                }
+
+                @Override
+                public void onAnimationCancel(@NonNull Animator animation) {}
+                @Override
+                public void onAnimationRepeat(@NonNull Animator animation) {}
+            });
+        }, 700);
     }
 
     public void ClearAll(View view) {
