@@ -182,10 +182,10 @@
 
         <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/SaveButton"
-            android:layout_width="180dp"
-            android:layout_height="55dp"
+            android:layout_width="188dp"
+            android:layout_height="58dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/darkBlue"
             android:fontFamily="@font/montserrat_bold"
@@ -194,16 +194,18 @@
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
             android:visibility="gone"
+            app:finalCornerAngle="16dp"
+            app:initialCornerAngle="40dp"
             app:spinning_bar_color="#FFF"
-            app:spinning_bar_padding="6dp"
-            app:spinning_bar_width="4dp" />
+            app:spinning_bar_padding="8dp"
+            app:spinning_bar_width="6dp" />
 
         <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/confirm_faculty_course"
             android:layout_width="160dp"
-            android:layout_height="55dp"
+            android:layout_height="58dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/darkBlue"
             android:fontFamily="@font/montserrat_bold"
@@ -212,38 +214,51 @@
             android:text="@string/confirm"
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
+            app:initialCornerAngle="40dp"
             app:spinning_bar_color="#FFF"
-            app:spinning_bar_padding="6dp"
-            app:spinning_bar_width="4dp" />
+            app:spinning_bar_padding="8dp"
+            app:spinning_bar_width="6dp" />
 
         <Button
             android:id="@+id/clear_button"
             android:layout_width="wrap_content"
             android:layout_height="55dp"
-            android:layout_marginTop="110dp"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="130dp"
             android:backgroundTint="@color/darkBlue"
             android:fontFamily="@font/montserrat_bold"
             android:onClick="ClearAll"
             android:text="@string/clear"
             android:textColor="#FFFFFF"
-            android:textColorHighlight="#FFFFFF" />
+            android:textColorHighlight="#FFFFFF"
+            app:cornerRadius="40dp" />
 
     </RelativeLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:foregroundTint="@color/darkBlue"
-            android:indeterminateTint="@color/darkBlue"
-            android:progressTint="@color/darkBlue"
-            android:visibility="invisible" />
-    </FrameLayout>
+    <com.shuhart.stepview.StepView
+        android:id="@+id/stepView"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:padding="16dp"
+        app:sv_animationType="All"
+        app:sv_doneCircleColor="@color/green"
+        app:sv_doneCircleRadius="18dp"
+        app:sv_doneStepLineColor="@color/green"
+        app:sv_doneStepMarkColor="@color/white"
+        app:sv_nextStepLineColor="@color/darkBlue"
+        app:sv_nextTextColor="@color/darkBlue"
+        app:sv_selectedCircleColor="@color/darkBlue"
+        app:sv_selectedCircleRadius="16dp"
+        app:sv_selectedStepNumberColor="@color/white"
+        app:sv_selectedTextColor="@color/white"
+        app:sv_stepLineWidth="1dp"
+        app:sv_stepNumberTextSize="14sp"
+        app:sv_stepPadding="12dp"
+        app:sv_stepViewStyle="@style/StepView" />
 
 
 </RelativeLayout>

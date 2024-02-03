@@ -46,5 +46,6 @@ dependencies {
     implementation ("com.github.skydoves:powerspinner:1.2.7")
     implementation("com.github.leandroborgesferreira:loading-button-android:2.3.0")
     implementation ("com.github.StevenDXC:DxLoadingButton:2.4")
+    implementation ("com.github.shuhart:stepview:1.5.1")
 }
 

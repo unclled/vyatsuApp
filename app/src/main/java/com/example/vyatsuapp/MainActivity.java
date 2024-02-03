@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.dx.dxloadingbutton.lib.LoadingButton;
 import com.example.vyatsuapp.utils.EducationInfo;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
+import com.shuhart.stepview.StepView;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button ClearButton;
 
+    private StepView stepView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         spGroups = findViewById(R.id.GroupSpinner);
         ClearButton = findViewById(R.id.clear_button);
         SaveButton = findViewById(R.id.SaveButton);
+        stepView = findViewById(R.id.stepView);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         selected_TypeEd = sharedPreferences.getString("EducationType", null);
@@ -78,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         courseField = findViewById(R.id.Course);
         confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
+        stepView.setStepsNumber(4);
 
         showSpinner = AnimationUtils.loadAnimation(this, R.anim.alpha);
         translateButtons = AnimationUtils.loadAnimation(this, R.anim.translate);
@@ -106,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
         spTypeOfEducation.setOnSpinnerItemSelectedListener(
                 (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
                     selected_TypeEd = newItem;
+                    stepView.done(true);
+                    stepView.go(0, true);
                     LinearLayout border = findViewById(R.id.Spinners);
                     Animation scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.border_increase);
                     border.startAnimation(scaleAnimation);
@@ -126,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
                     spFaculties.setOnSpinnerItemSelectedListener(
                             (OnSpinnerItemSelectedListener<String>) (oldIndex1, oldItem1, newIndex1, newItem1) -> {
                         selected_Faculty = newItem1;
+                        stepView.done(true);
+                        stepView.go(1, true);
                         courseField.setVisibility(View.VISIBLE);
                         Animation scaleAnimation2 = AnimationUtils.loadAnimation(this, R.anim.border_increase2);
                         border.startAnimation(scaleAnimation2);
@@ -148,45 +157,68 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Course = Integer.parseInt(courseField.getText().toString());
-            confirmCourseFacultyButton.startAnimation();
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            Thread thread = new Thread(() -> {
-                try {
-                    EducationInfo educationInfo = new EducationInfo(
-                            selected_TypeEd,
-                            selected_Faculty,
-                            Course,
-                            Semester);
-                    String receivedInfo = educationInfo.ConnectAndGetInfo();
+            if (Course < 1 || Course > 5) {
+                Toast toast = Toast.makeText(
+                        this,
+                        "Укажите реальный курс",
+                        Toast.LENGTH_LONG);
+                toast.show();
+            }
+            else {
+                confirmCourseFacultyButton.startAnimation();
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                Thread thread = new Thread(() -> {
+                    try {
+                        EducationInfo educationInfo = new EducationInfo(
+                                selected_TypeEd,
+                                selected_Faculty,
+                                Course,
+                                Semester);
+                        String receivedInfo = educationInfo.ConnectAndGetInfo();
 
-                    runOnUiThread(() -> {
-                        List<String> groups;
-                        groups = educationInfo.getGroups();
-                        spGroups.setItems(groups);
-                        /*Bitmap bitmap = BitmapFactory.decodeResource(view.getContext().getResources(),
-                                R.drawable.done_background);
-                        confirmCourseFacultyButton.doneLoadingAnimation(Color.parseColor("#076dab"), bitmap);*/
-                        confirmCourseFacultyButton.revertAnimation();
+                        runOnUiThread(() -> {
+                            List<String> groups;
+                            groups = educationInfo.getGroups();
+                            if (groups.size() != 0) {
+                                stepView.done(true);
+                                stepView.go(2, true);
+                                spGroups.setItems(groups);
+                                /*Bitmap bitmap = BitmapFactory.decodeResource(view.getContext().getResources(),
+                                      R.drawable.done_background);
+                                confirmCourseFacultyButton.doneLoadingAnimation(Color.parseColor("#076dab"), bitmap);*/
+                                confirmCourseFacultyButton.revertAnimation();
 
-                        spGroups.setVisibility(View.VISIBLE);
-                        confirmCourseFacultyButton.setVisibility(View.GONE);
-                        SaveButton.setVisibility(View.VISIBLE);
+                                spGroups.setVisibility(View.VISIBLE);
+                                confirmCourseFacultyButton.setVisibility(View.GONE);
+                                SaveButton.setVisibility(View.VISIBLE);
 
-                        spGroups.startAnimation(showSpinner);
-                        SaveButton.startAnimation(translateButtons);
-                        ClearButton.startAnimation(translateButtons);
+                                spGroups.startAnimation(showSpinner);
+                                SaveButton.startAnimation(translateButtons);
+                                ClearButton.startAnimation(translateButtons);
 
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                        spGroups.setOnSpinnerItemSelectedListener(
-                                (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) ->
-                                        selected_Group = newItem);
-                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            thread.start();
+                                spGroups.setOnSpinnerItemSelectedListener(
+                                        (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
+                                            selected_Group = newItem;
+                                            stepView.done(true);
+                                            stepView.go(3, true);
+                                        });
+                            } else {
+                                confirmCourseFacultyButton.revertAnimation();
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                Toast toast = Toast.makeText(
+                                        this,
+                                        "Не существует групп для данного курса",
+                                        Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }); thread.start();
+            }
         }
     }
 
@@ -223,5 +255,9 @@ public class MainActivity extends AppCompatActivity {
         spTypeOfEducation.setVisibility(View.VISIBLE);
         confirmCourseFacultyButton.setVisibility(View.VISIBLE);
         SaveButton.setVisibility(View.GONE);
+        for (int i = 4; i >= 0; i--) {
+            stepView.go(i, true);
+            stepView.done(false);
+        }
     }
 }
