@@ -40,10 +40,15 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/Spinners"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/upperBG"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/border"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="8dp">
 
         <com.skydoves.powerspinner.PowerSpinnerView
             android:id="@+id/EducationTypeSpinner"
@@ -154,6 +159,7 @@
             android:textColorHint="@color/grey"
             android:textSize="18sp"
             android:verticalScrollbarPosition="right"
+            android:animateLayoutChanges="true"
             android:visibility="gone"
             app:spinner_arrow_gravity="end"
             app:spinner_arrow_show="true"
@@ -167,35 +173,41 @@
             app:spinner_popup_elevation="14dp"
             app:spinner_popup_max_height="290dp" />
 
+    </LinearLayout>
 
-        <com.dx.dxloadingbutton.lib.LoadingButton
-            android:id="@+id/SaveButton"
-            android:layout_width="180dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="@string/SaveButton"
-            android:fontFamily="@font/montserrat_bold"
-            android:foregroundTint="@color/darkBlue"
-            android:onClick="SaveButtonPressed"
-            android:visibility="gone"
-            app:lb_btnColor="@color/darkBlue"
-            app:lb_btnText="@string/SaveButton"
-            app:lb_resetAfterFailed="true"
-            app:lb_btnRippleColor="#000000"
-            app:lb_btnDisabledColor="#cccccc"
-            app:lb_disabledTextColor="#999999"
-            app:lb_cornerRadius="32dp"
-            app:lb_rippleEnable="true"	 />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Spinners">
 
         <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/confirm_faculty_course"
-            android:layout_width="140dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
+            android:id="@+id/SaveButton"
+            android:layout_width="180dp"
+            android:layout_height="55dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:backgroundTint="@color/darkBlue"
             android:fontFamily="@font/montserrat_bold"
+            android:onClick="SaveButtonPressed"
+            android:text="@string/SaveButton"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#FFFFFF"
+            android:visibility="gone"
+            app:spinning_bar_color="#FFF"
+            app:spinning_bar_padding="6dp"
+            app:spinning_bar_width="4dp" />
+
+        <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/confirm_faculty_course"
+            android:layout_width="160dp"
+            android:layout_height="55dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/darkBlue"
+            android:fontFamily="@font/montserrat_bold"
+            android:gravity="center"
             android:onClick="ConfirmButtonPressed"
             android:text="@string/confirm"
             android:textColor="#FFFFFF"
@@ -207,8 +219,9 @@
         <Button
             android:id="@+id/clear_button"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
+            android:layout_height="55dp"
+            android:layout_marginTop="110dp"
+            android:layout_centerHorizontal="true"
             android:backgroundTint="@color/darkBlue"
             android:fontFamily="@font/montserrat_bold"
             android:onClick="ClearAll"
@@ -216,7 +229,7 @@
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"

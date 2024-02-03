@@ -1,20 +1,20 @@
 package com.example.vyatsuapp;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.dx.dxloadingbutton.lib.LoadingButton;
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public PowerSpinnerView spGroups;
 
     public CircularProgressButton confirmCourseFacultyButton;
+    public CircularProgressButton SaveButton;
 
     public EditText courseField;
 
@@ -44,8 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private int Course = 0;
     private int Semester = 1;
 
-
     private SharedPreferences sharedPreferences;
+
+    Animation showSpinner;
+    Animation translateButtons;
+
+    Button ClearButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         spTypeOfEducation = findViewById(R.id.EducationTypeSpinner);
         spFaculties = findViewById(R.id.FacultiesSpinner);
         spGroups = findViewById(R.id.GroupSpinner);
+        ClearButton = findViewById(R.id.clear_button);
+        SaveButton = findViewById(R.id.SaveButton);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         selected_TypeEd = sharedPreferences.getString("EducationType", null);
@@ -71,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
 
         courseField = findViewById(R.id.Course);
         confirmCourseFacultyButton = findViewById(R.id.confirm_faculty_course);
+
+        showSpinner = AnimationUtils.loadAnimation(this, R.anim.alpha);
+        translateButtons = AnimationUtils.loadAnimation(this, R.anim.translate);
 
         isFirstStart();
     }
@@ -95,23 +105,35 @@ public class MainActivity extends AppCompatActivity {
         ///////////////////////////Обработка выбора в выпадающих списках///////////////////////////
         spTypeOfEducation.setOnSpinnerItemSelectedListener(
                 (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
-            selected_TypeEd = newItem;
-            String[] selected_Faculties = switch (newItem) {
-                case "Бакалавр" -> getResources().getStringArray(R.array.FullTimeBachelorFacs);
-                case "Специалист" -> getResources().getStringArray(R.array.FullTimeSpecFacs);
-                case "Магистр" -> getResources().getStringArray(R.array.FullTimeMasterFacs);
-                default -> getResources().getStringArray(R.array.FullTimeGraduateFacs);
-            };
-            spFaculties.setVisibility(View.VISIBLE);
-            List<String> Faculties = new ArrayList<>(Arrays.asList(selected_Faculties));
-            spFaculties.setItems(Faculties);
+                    selected_TypeEd = newItem;
+                    LinearLayout border = findViewById(R.id.Spinners);
+                    Animation scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.border_increase);
+                    border.startAnimation(scaleAnimation);
+                    confirmCourseFacultyButton.startAnimation(translateButtons);
+                    ClearButton.startAnimation(translateButtons);
 
-            spFaculties.setOnSpinnerItemSelectedListener(
-                    (OnSpinnerItemSelectedListener<String>) (oldIndex1, oldItem1, newIndex1, newItem1) -> {
-                selected_Faculty = newItem1;
-                courseField.setVisibility(View.VISIBLE);
-            });
-        });
+                    String[] selected_Faculties = switch (newItem) {
+                        case "Бакалавр" -> getResources().getStringArray(R.array.FullTimeBachelorFacs);
+                        case "Специалист" -> getResources().getStringArray(R.array.FullTimeSpecFacs);
+                        case "Магистр" -> getResources().getStringArray(R.array.FullTimeMasterFacs);
+                        default -> getResources().getStringArray(R.array.FullTimeGraduateFacs);
+                    };
+                    spFaculties.setVisibility(View.VISIBLE);
+                    spFaculties.startAnimation(showSpinner);
+                    List<String> Faculties = new ArrayList<>(Arrays.asList(selected_Faculties));
+                    spFaculties.setItems(Faculties);
+
+                    spFaculties.setOnSpinnerItemSelectedListener(
+                            (OnSpinnerItemSelectedListener<String>) (oldIndex1, oldItem1, newIndex1, newItem1) -> {
+                        selected_Faculty = newItem1;
+                        courseField.setVisibility(View.VISIBLE);
+                        Animation scaleAnimation2 = AnimationUtils.loadAnimation(this, R.anim.border_increase2);
+                        border.startAnimation(scaleAnimation2);
+                        courseField.startAnimation(showSpinner);
+                        ClearButton.startAnimation(translateButtons);
+                        confirmCourseFacultyButton.startAnimation(translateButtons);
+                    });
+                });
     }
 
     public void ConfirmButtonPressed(View view) {
@@ -145,14 +167,16 @@ public class MainActivity extends AppCompatActivity {
                                 R.drawable.done_background);
                         confirmCourseFacultyButton.doneLoadingAnimation(Color.parseColor("#076dab"), bitmap);*/
                         confirmCourseFacultyButton.revertAnimation();
+
                         spGroups.setVisibility(View.VISIBLE);
-
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-                        LoadingButton SaveButton = findViewById(R.id.SaveButton);
-
                         confirmCourseFacultyButton.setVisibility(View.GONE);
                         SaveButton.setVisibility(View.VISIBLE);
+
+                        spGroups.startAnimation(showSpinner);
+                        SaveButton.startAnimation(translateButtons);
+                        ClearButton.startAnimation(translateButtons);
+
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                         spGroups.setOnSpinnerItemSelectedListener(
                                 (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) ->
@@ -167,16 +191,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void SaveButtonPressed(View view) throws InterruptedException {
-        LoadingButton saveButton = findViewById(R.id.SaveButton);
         if (selected_Group != null) {
-            saveButton.startLoading();
+            SaveButton.startAnimation();
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("EducationType", selected_TypeEd);
             editor.putString("Faculty", selected_Faculty);
             editor.putInt("Course", Course);
             editor.putString("Group", selected_Group);
             editor.apply();
-            saveButton.loadingSuccessful();
+            SaveButton.revertAnimation();
             Intent intent = new Intent(this, BasicMainActivity.class);
             startActivity(intent);
         }
@@ -199,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
         spFaculties.setVisibility(View.GONE);
         spTypeOfEducation.setVisibility(View.VISIBLE);
         confirmCourseFacultyButton.setVisibility(View.VISIBLE);
-        LoadingButton SaveButton = findViewById(R.id.SaveButton);
         SaveButton.setVisibility(View.GONE);
     }
 }
