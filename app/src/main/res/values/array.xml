@@ -66,4 +66,13 @@
         <item>Электротехнический факультет</item>
         <item>Юридический институт</item>
     </array>
+    <array name="ClassTime">
+        <item>8:20-9:50</item>
+        <item>10:00-11:30</item>
+        <item>11:45-13:15</item>
+        <item>14:00-15:30</item>
+        <item>15:45-17:15</item>
+        <item>17:20-18:50</item>
+        <item>18:55-20:25</item>
+    </array>
 </resources>

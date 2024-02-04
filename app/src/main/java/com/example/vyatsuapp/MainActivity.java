@@ -1,14 +1,13 @@
 package com.example.vyatsuapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -23,6 +22,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vyatsuapp.utils.EducationInfo;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
@@ -68,13 +70,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) <= 8) {
-            Semester = 2;
-        } else {
-            Semester = 1;
-        }
-
         spTypeOfEducation = findViewById(R.id.EducationTypeSpinner);
         spFaculties = findViewById(R.id.FacultiesSpinner);
         spGroups = findViewById(R.id.GroupSpinner);
@@ -102,16 +97,22 @@ public class MainActivity extends AppCompatActivity {
     private void isFirstStart() {
         SharedPreferences sp = getSharedPreferences("hasStudentInfo", Context.MODE_PRIVATE);
         boolean hasStudentInfo = sp.getBoolean("hasStudentInfo", false);
-        System.out.println(hasStudentInfo);
+
         if (!hasStudentInfo || selected_TypeEd == null || selected_Faculty == null
                 || Course == 0 || selected_Group == null) { //Если нет какой-либо информации о студенте
             SharedPreferences.Editor editor = sp.edit();
             editor.putBoolean("hasStudentInfo", true);
             editor.apply();
+            Calendar calendar = Calendar.getInstance();
+            if (calendar.get(Calendar.MONTH) <= 8) {
+                Semester = 2;
+            } else {
+                Semester = 1;
+            }
             getStudentInfo();
         } else { //запуск активности с расписанием
-            Intent intent = new Intent(this, BasicMainActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
+            overridePendingTransition(0, 0);
         }
     }
 
@@ -155,76 +156,85 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void ConfirmButtonPressed(View view) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
-        if (selected_Faculty == null || selected_TypeEd == null || courseField.getText().toString().equals("")) {
-            Toast toast = Toast.makeText(
-                    this,
-                    "Заполните все поля!",
-                    Toast.LENGTH_LONG);
-            toast.show();
-        }
-        else {
-            Course = Integer.parseInt(courseField.getText().toString());
-            if (Course < 1 || Course > 5) {
+        if (isOnline()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
+            if (selected_Faculty == null || selected_TypeEd == null || courseField.getText().toString().equals("")) {
                 Toast toast = Toast.makeText(
                         this,
-                        "Укажите реальный курс",
+                        "Заполните все поля!",
                         Toast.LENGTH_LONG);
                 toast.show();
+            } else {
+                Course = Integer.parseInt(courseField.getText().toString());
+                if (Course < 1 || Course > 5) {
+                    Toast toast = Toast.makeText(
+                            this,
+                            "Укажите реальный курс",
+                            Toast.LENGTH_LONG);
+                    toast.show();
+                } else {
+                    confirmCourseFacultyButton.startAnimation();
+                    getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    Thread thread = new Thread(() -> {
+                        try {
+                            EducationInfo educationInfo = new EducationInfo(
+                                    selected_TypeEd,
+                                    selected_Faculty,
+                                    Course,
+                                    Semester);
+                            String receivedInfo = educationInfo.ConnectAndGetInfo();
+                            runOnUiThread(() -> {
+                                List<String> groups;
+                                groups = educationInfo.getGroups();
+                                if (groups.size() != 0) {
+                                    stepView.done(true);
+                                    stepView.go(2, true);
+                                    spGroups.setItems(groups);
+
+                                    //confirmCourseFacultyButton.doneLoadingAnimation(1, bitmap);
+                                    confirmCourseFacultyButton.revertAnimation();
+                                    spGroups.setVisibility(View.VISIBLE);
+                                    confirmCourseFacultyButton.setVisibility(View.GONE);
+                                    SaveButton.setVisibility(View.VISIBLE);
+
+                                    spGroups.startAnimation(showSpinner);
+                                    SaveButton.startAnimation(translateButtons);
+                                    ClearButton.startAnimation(translateButtons);
+
+                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                                    spGroups.setOnSpinnerItemSelectedListener(
+                                            (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
+                                                selected_Group = newItem;
+                                                stepView.done(true);
+                                                stepView.go(3, true);
+                                            });
+                                } else {
+                                    confirmCourseFacultyButton.revertAnimation();
+                                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                    Toast toast = Toast.makeText(
+                                            this,
+                                            "Не существует групп для данного курса",
+                                            Toast.LENGTH_LONG);
+                                    toast.show();
+                                }
+                            });
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    thread.start();
+                }
             }
-            else {
-                confirmCourseFacultyButton.startAnimation();
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                Thread thread = new Thread(() -> {
-                    try {
-                        EducationInfo educationInfo = new EducationInfo(
-                                selected_TypeEd,
-                                selected_Faculty,
-                                Course,
-                                Semester);
-                        String receivedInfo = educationInfo.ConnectAndGetInfo();
-                        runOnUiThread(() -> {
-                            List<String> groups;
-                            groups = educationInfo.getGroups();
-                            if (groups.size() != 0) {
-                                stepView.done(true);
-                                stepView.go(2, true);
-                                spGroups.setItems(groups);
-
-                                //confirmCourseFacultyButton.doneLoadingAnimation(1, bitmap);
-                                confirmCourseFacultyButton.revertAnimation();
-                                spGroups.setVisibility(View.VISIBLE);
-                                confirmCourseFacultyButton.setVisibility(View.GONE);
-                                SaveButton.setVisibility(View.VISIBLE);
-
-                                spGroups.startAnimation(showSpinner);
-                                SaveButton.startAnimation(translateButtons);
-                                ClearButton.startAnimation(translateButtons);
-
-                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-                                spGroups.setOnSpinnerItemSelectedListener(
-                                        (OnSpinnerItemSelectedListener<String>) (oldIndex, oldItem, newIndex, newItem) -> {
-                                            selected_Group = newItem;
-                                            stepView.done(true);
-                                            stepView.go(3, true);
-                                        });
-                            } else {
-                                confirmCourseFacultyButton.revertAnimation();
-                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                                Toast toast = Toast.makeText(
-                                        this,
-                                        "Не существует групп для данного курса",
-                                        Toast.LENGTH_LONG);
-                                toast.show();
-                            }
-                        });
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }); thread.start();
-            }
+        } else {
+            Toast toast = Toast.makeText(
+                    this,
+                    "Нет подключения к интернету!",
+                    Toast.LENGTH_LONG);
+            toast.show();
+            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+            confirmCourseFacultyButton.startAnimation(shake);
         }
     }
 
@@ -239,8 +249,6 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
             toNextPage();
         }
-        // TODO на основе полученных данных отделить ссылку на расписание, а также сделать так
-        // TODO чтобы выбиралось только первое расписание в EducationInfo
     }
 
     private void toNextPage() {
@@ -304,5 +312,12 @@ public class MainActivity extends AppCompatActivity {
             stepView.go(i, true);
             stepView.done(false);
         }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

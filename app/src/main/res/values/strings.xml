@@ -10,4 +10,5 @@
     <string name="SaveButton">Сохранить данные</string>
     <string name="Greetings">Информация об обучении</string>
     <string name="toolTip">Заполни все поля, чтобы получить актуальное расписание!</string>
+    <string name="VyatsuURL"></string>
 </resources>
