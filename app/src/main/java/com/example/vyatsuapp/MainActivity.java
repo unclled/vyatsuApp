@@ -23,15 +23,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     public CircularProgressButton SaveButton;
 
-    public TextInputEditText loginField;
-    public TextInputEditText passwordField;
+    public TextInputLayout loginField;
+    public TextInputLayout passwordField;
 
     private SharedPreferences sharedPreferences;
 
@@ -63,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
             getStudentInfo();
         } else { //запуск активности с расписанием
-            startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
-            overridePendingTransition(0, 0);
+            /*startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
+            overridePendingTransition(0, 0);*/
         }
     }
 

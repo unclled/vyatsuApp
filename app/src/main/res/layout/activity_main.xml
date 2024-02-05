@@ -9,91 +9,120 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
-        android:id="@+id/upperBG"
+        android:id="@+id/FadeBG"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
-        android:background="@color/brightBlue">
+        android:layout_height="match_parent"
+        android:background="@drawable/fade_bg" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="@string/Greetings"
-            android:textColor="@color/white"
-            android:textSize="28sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="20dp"-->
+<!--            android:layout_marginTop="24dp"-->
+<!--            android:fontFamily="@font/montserrat_bold"-->
+<!--            android:text="@string/Greetings"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="28sp" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="20dp"-->
+<!--            android:layout_marginTop="70dp"-->
+<!--            android:layout_marginEnd="20dp"-->
+<!--            android:layout_marginBottom="20dp"-->
+<!--            android:fontFamily="@font/montserrat_bold"-->
+<!--            android:text="@string/toolTip"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="14sp" />-->
+
+
+        <RelativeLayout
+            android:layout_width="340dp"
+            android:layout_height="500dp"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="false"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
-            android:fontFamily="@font/montserrat_bold"
-            android:text="@string/toolTip"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:background="@drawable/border"
+            android:elevation="20dp"
+            android:gravity="center">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="28dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:text="@string/Greetings"
+                android:textColor="@color/darkBlue"
+                android:textSize="36sp" />
 
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/upperBG">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/LoginField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Введите логин"
-            app:startIconContentDescription="Логин">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/LoginField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="130dp"
+                android:layout_marginEnd="30dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:hint="@string/Login"
+                android:textColorHint="@color/brightText"
+                app:startIconContentDescription="@string/Login"
+                app:startIconTint="@color/darkBlue"
+                app:errorEnabled="true" >
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/PasswordField"
-            android:layout_below="@+id/LoginField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Введите логин"
-            app:startIconContentDescription="Логин">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/PasswordField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:layout_below="@+id/LoginField"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="30dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:hint="@string/Password"
+                android:textColorHint="@color/brightText"
+                app:startIconContentDescription="@string/Password"
+                app:startIconTint="@color/darkBlue"
+                app:errorEnabled="true" >
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-        <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/SaveButton"
-            android:layout_below="@+id/PasswordField"
-            android:layout_width="188dp"
-            android:layout_height="50dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/darkBlue"
-            android:fontFamily="@font/montserrat_bold"
-            android:onClick="SaveButtonPressed"
-            android:text="@string/SaveButton"
-            android:textColor="#FFFFFF"
-            android:textColorHighlight="#FFFFFF"
-            app:finalCornerAngle="40dp"
-            app:initialCornerAngle="40dp"
-            app:spinning_bar_color="#FFF"
-            app:spinning_bar_padding="8dp"
-            app:spinning_bar_width="6dp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    </RelativeLayout>
+            <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
+                android:id="@+id/SaveButton"
+                android:layout_width="160dp"
+                android:layout_height="50dp"
+                android:layout_below="@+id/PasswordField"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="34dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/fade_button"
+                android:fontFamily="@font/montserrat_bold"
+                android:onClick="SaveButtonPressed"
+                android:text="@string/SaveButton"
+                android:textColor="#FFFFFF"
+                android:textColorHighlight="#FFFFFF"
+                app:finalCornerAngle="40dp"
+                app:initialCornerAngle="40dp"
+                app:spinning_bar_color="#FFF"
+                app:spinning_bar_padding="8dp"
+                app:spinning_bar_width="6dp" />
+
+        </RelativeLayout>
 
     <View
         android:id="@+id/animate_view"
@@ -102,5 +131,7 @@
         android:layout_centerHorizontal="true"
         android:background="@color/darkBlue"
         android:visibility="gone" />
+
+    </RelativeLayout>
 
 </RelativeLayout>
