@@ -23,16 +23,29 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     public CircularProgressButton SaveButton;
-
+    private static final String LKVyatsuURL = "https://new.vyatsu.ru/";
+    private final String Account = "account/";//главная
+    private final String IngoAboutStudy="obr/";//учеба
+    private final String  TimeTable="rasp";//расписание
     public TextInputLayout loginField;
     public TextInputLayout passwordField;
 
+    private String loginText;
+    private String passwordText;
     private SharedPreferences sharedPreferences;
 
     Bitmap bitmap;
@@ -46,12 +59,36 @@ public class MainActivity extends AppCompatActivity {
         passwordField = findViewById(R.id.PasswordField);
         SaveButton = findViewById(R.id.SaveButton);
         bitmap = BitmapFactory.decodeResource(getResources(), com.github.leandroborgesferreira.loadingbutton.R.drawable.ic_done_white_48dp);
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         isFirstStart();
     }
 
+    private boolean isTextInputLayoutNotEmpty(TextInputLayout login,TextInputLayout password) {
+        if (login.getEditText() != null&&password.getEditText()!=null) {
+            loginText = login.getEditText().getText().toString().trim();
+            passwordText=password.getEditText().getText().toString().trim();
+            return ((!loginText.isEmpty())&&(!passwordText.isEmpty()));
+        }
+        return false;
+    }
+
+    private void getAuthorization(){
+        try {
+            URL url = new URL(LKVyatsuURL + Account);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                Document document = (Document) Jsoup.connect("url");
+                Element contentDiv = document.getElementById("USER_LOGIN");
+            }
+
+            connection.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void isFirstStart() {
         SharedPreferences sp = getSharedPreferences("hasStudentInfo", Context.MODE_PRIVATE);
         boolean hasStudentInfo = sp.getBoolean("hasStudentInfo", false);
@@ -61,10 +98,11 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean("hasStudentInfo", true);
             editor.apply();
             Calendar calendar = Calendar.getInstance();
-            getStudentInfo();
+            //getStudentInfo();
+            getAuthorization();
         } else { //запуск активности с расписанием
-            /*startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
-            overridePendingTransition(0, 0);*/
+            startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
+            overridePendingTransition(0, 0);
         }
     }
 
