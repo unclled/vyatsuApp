@@ -183,10 +183,9 @@ public class MainActivity extends AppCompatActivity {
                                     selected_Faculty,
                                     Course,
                                     Semester);
-                            String receivedInfo = educationInfo.ConnectAndGetInfo();
+                            List<String> groups = educationInfo.ConnectAndGetInfo();
                             runOnUiThread(() -> {
-                                List<String> groups;
-                                groups = educationInfo.getGroups();
+                                System.out.println(groups);
                                 if (groups.size() != 0) {
                                     stepView.done(true);
                                     stepView.go(2, true);

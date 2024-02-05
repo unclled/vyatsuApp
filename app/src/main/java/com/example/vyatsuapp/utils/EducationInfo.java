@@ -24,10 +24,9 @@ public class EducationInfo {
         this.Semester = Semester;
     }
 
-    public String ConnectAndGetInfo() {
+    public List<String> ConnectAndGetInfo() {
         StringBuilder PDFurlForGroup = new StringBuilder();
-        String receivedInfo;
-
+        groups.clear();
         try {
             var document = Jsoup.connect(VyatsuURL).maxBodySize(0).get();
             Elements programElements = document.select(".headerEduPrograms"); //Выбираем все заголовки типов обучения
@@ -53,12 +52,8 @@ public class EducationInfo {
                                         String PDFurl = getPDF.attr("href"); //Ссылка на таблицу
 
                                         if (PDFurl.contains("_" + Semester + "_")) {
+                                            System.out.println("Зашли");
                                             groups.add(groupName);
-                                            PDFurlForGroup.append(groupName).
-                                                    append(": ").
-                                                    append(VyatsuURL).
-                                                    append(PDFurl).
-                                                    append("\n");
                                         }
                                     }
                                 }
@@ -71,8 +66,7 @@ public class EducationInfo {
                 }
 
             }
-            receivedInfo = String.valueOf(PDFurlForGroup);
-            return receivedInfo;
+            return groups;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

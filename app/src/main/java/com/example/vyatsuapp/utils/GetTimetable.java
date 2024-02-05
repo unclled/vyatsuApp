@@ -11,6 +11,8 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class GetTimetable {
@@ -71,24 +73,22 @@ public class GetTimetable {
     }
 
     public String ReadPDFTable(Context context) throws IOException {
+        Pattern pattern = Pattern.compile("/(\\d{2}:\\d{2}-\\d{2}:\\d{2})|([А-Я][а-я]+\\s[А-Я]\\.[А-Я])|(\\d+-\\d{3})");
+
         StringBuilder finalText = new StringBuilder();
         File file = new File(context.getExternalFilesDir(null), "timetable.pdf"); // Путь к сохраненному PDF файлу
         PDDocument document = PDDocument.load(file);
         PDFTextStripper stripper = new PDFTextStripper();
         String text = stripper.getText(document);
         String[] linex = text.split("\n");
-        for (String line : linex) {
-            for (String time : classTime) {
-                if (line.contains(time)) {
-                    finalText.append(line).append("\n");
-                }
-            }
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            int start=matcher.start();
+            int end=matcher.end();
+            finalText.append(text.substring(start,end)).append("\n");
         }
-        System.out.print(text);
         return finalText.toString();
     }
 
-    public void setClassTime(String[] classTime) {
-        this.classTime = classTime;
-    }
+    public void setClassTime(String[] classTime) { this.classTime = classTime; }
 }

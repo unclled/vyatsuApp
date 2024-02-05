@@ -3,7 +3,6 @@ package com.example.vyatsuapp;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -47,9 +46,8 @@ public class BasicMainActivity extends AppCompatActivity {
         } else {
             Semester = 1;
         }
-        System.out.println(selected_TypeEd + selected_Faculty + selected_Group + Semester);
         Thread thread = new Thread(() -> {
-            progressBar.setVisibility(View.VISIBLE);
+            //progressBar.setVisibility(View.VISIBLE);
             GetTimetable getTimetable = new GetTimetable(selected_TypeEd, selected_Faculty, selected_Group, Semester);
             String uri = getTimetable.GetActualTimetable();
             String fullURI = "https://www.vyatsu.ru" + uri;
@@ -74,7 +72,7 @@ public class BasicMainActivity extends AppCompatActivity {
                 String[] classTime = getResources().getStringArray(R.array.ClassTime);
                 getTimetable.setClassTime(classTime);
                 String receivedData = getTimetable.ReadPDFTable(this);
-                progressBar.setVisibility(View.GONE);
+                //progressBar.setVisibility(View.GONE);
                 runOnUiThread(() -> text.setText(receivedData));
             } catch (Exception e) {
                 e.printStackTrace();
