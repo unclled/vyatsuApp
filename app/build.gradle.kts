@@ -43,9 +43,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation ("org.jsoup:jsoup:1.17.2")
-    implementation ("com.github.skydoves:powerspinner:1.2.7")
     implementation("com.github.leandroborgesferreira:loading-button-android:2.3.0")
-    implementation ("com.github.shuhart:stepview:1.5.1")
-    implementation ("com.tom-roush:pdfbox-android:2.0.27.0")
+    implementation ("com.google.android.material:material:1.11.0")
 }
 

@@ -16,15 +16,13 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="24dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="@string/Greetings"
             android:textColor="@color/white"
-            android:textSize="24sp" />
+            android:textSize="28sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,150 +39,45 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/Spinners"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/upperBG"
-        android:orientation="vertical"
-        android:background="@drawable/border"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="8dp">
-
-        <com.skydoves.powerspinner.PowerSpinnerView
-            android:id="@+id/EducationTypeSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_margin="10dp"
-            android:background="@color/brightBG"
-            android:fadeScrollbars="false"
-            android:fontFamily="@font/montserrat_bold"
-            android:gravity="left|center"
-            android:hint="@string/selectEducationType"
-            android:paddingStart="16dp"
-            android:scrollbarSize="20dp"
-            android:scrollbarStyle="outsideInset"
-            android:scrollbars="vertical"
-            android:textColor="@color/black"
-            android:textColorHint="@color/grey"
-            android:textSize="18sp"
-            android:verticalScrollbarPosition="right"
-            app:spinner_item_array="@array/EducationType"
-            app:spinner_arrow_gravity="end"
-            app:spinner_arrow_show="true"
-            app:spinner_arrow_tint="@color/darkBlue"
-            app:spinner_divider_color="@color/brightGrey"
-            app:spinner_divider_show="true"
-            app:spinner_divider_size="0.4dp"
-            app:spinner_item_height="58dp"
-            app:spinner_popup_animation="dropdown"
-            app:spinner_popup_background="@color/brightBG"
-            app:spinner_popup_elevation="14dp"
-
-            />
-
-        <com.skydoves.powerspinner.PowerSpinnerView
-            android:id="@+id/FacultiesSpinner"
-            style="@style/PowerSpinnerStyle"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_margin="10dp"
-            android:background="@color/brightBG"
-            android:fadeScrollbars="false"
-            android:fontFamily="@font/montserrat_bold"
-            android:gravity="left|center"
-            android:hint="@string/selectFaculty"
-            android:paddingStart="16dp"
-            android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarFadeDuration="0"
-            android:scrollbarSize="20dp"
-            android:scrollbarStyle="outsideInset"
-            android:scrollbarThumbVertical="@android:color/black"
-            android:scrollbars="vertical"
-            android:textColor="@color/black"
-            android:textColorHint="@color/grey"
-            android:textSize="18sp"
-            android:verticalScrollbarPosition="right"
-            android:visibility="gone"
-            app:spinner_arrow_gravity="end"
-            app:spinner_arrow_show="true"
-            app:spinner_arrow_tint="@color/darkBlue"
-            app:spinner_divider_color="@color/brightGrey"
-            app:spinner_divider_show="true"
-            app:spinner_divider_size="0.4dp"
-            app:spinner_item_height="58dp"
-            app:spinner_popup_animation="dropdown"
-            app:spinner_popup_background="@color/brightBG"
-            app:spinner_popup_elevation="14dp"
-            app:spinner_popup_max_height="522dp" />
-
-        <EditText
-            android:id="@+id/Course"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_gravity="left|center"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:animateLayoutChanges="true"
-            android:background="@android:color/transparent"
-            android:fontFamily="@font/montserrat_bold"
-            android:hint="@string/Course"
-            android:inputType="numberDecimal"
-            android:padding="10dp"
-            android:textAlignment="gravity"
-            android:textColorHighlight="#000000"
-            android:textColorHint="#808080"
-            android:textSize="20sp"
-            android:visibility="gone" />
-
-        <com.skydoves.powerspinner.PowerSpinnerView
-            android:id="@+id/GroupSpinner"
-            style="@style/PowerSpinnerStyle"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_margin="10dp"
-            android:background="@color/brightBG"
-            android:fadeScrollbars="false"
-            android:fontFamily="@font/montserrat_bold"
-            android:gravity="left|center"
-            android:hint="@string/selectGroup"
-            android:paddingStart="16dp"
-            android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarFadeDuration="0"
-            android:scrollbarSize="20dp"
-            android:scrollbarStyle="outsideInset"
-            android:scrollbarThumbVertical="@android:color/black"
-            android:scrollbars="vertical"
-            android:textColor="@color/black"
-            android:textColorHint="@color/grey"
-            android:textSize="18sp"
-            android:verticalScrollbarPosition="right"
-            android:animateLayoutChanges="true"
-            android:visibility="gone"
-            app:spinner_arrow_gravity="end"
-            app:spinner_arrow_show="true"
-            app:spinner_arrow_tint="@color/darkBlue"
-            app:spinner_divider_color="@color/brightGrey"
-            app:spinner_divider_show="true"
-            app:spinner_divider_size="0.4dp"
-            app:spinner_item_height="58dp"
-            app:spinner_popup_animation="dropdown"
-            app:spinner_popup_background="@color/brightBG"
-            app:spinner_popup_elevation="14dp"
-            app:spinner_popup_max_height="290dp" />
-
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/Spinners">
+        android:layout_below="@+id/upperBG">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/LoginField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите логин"
+            app:startIconContentDescription="Логин">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/PasswordField"
+            android:layout_below="@+id/LoginField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите логин"
+            app:startIconContentDescription="Логин">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
             android:id="@+id/SaveButton"
+            android:layout_below="@+id/PasswordField"
             android:layout_width="188dp"
-            android:layout_height="58dp"
+            android:layout_height="50dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="16dp"
@@ -194,74 +87,13 @@
             android:text="@string/SaveButton"
             android:textColor="#FFFFFF"
             android:textColorHighlight="#FFFFFF"
-            android:visibility="gone"
-            app:finalCornerAngle="40dp"
-            app:initialCornerAngle="40dp"
-            app:spinning_bar_color="#FFF"
-            app:spinning_bar_padding="8dp"
-            app:spinning_bar_width="6dp"
-            />
-
-        <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/confirm_faculty_course"
-            android:layout_width="160dp"
-            android:layout_height="58dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/darkBlue"
-            android:fontFamily="@font/montserrat_bold"
-            android:gravity="center"
-            android:onClick="ConfirmButtonPressed"
-            android:text="@string/confirm"
-            android:textColor="#FFFFFF"
-            android:textColorHighlight="#FFFFFF"
             app:finalCornerAngle="40dp"
             app:initialCornerAngle="40dp"
             app:spinning_bar_color="#FFF"
             app:spinning_bar_padding="8dp"
             app:spinning_bar_width="6dp" />
 
-        <Button
-            android:id="@+id/clear_button"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="130dp"
-            android:backgroundTint="@color/darkBlue"
-            android:fontFamily="@font/montserrat_bold"
-            android:onClick="ClearAll"
-            android:text="@string/clear"
-            android:textColor="#FFFFFF"
-            android:textColorHighlight="#FFFFFF"
-            app:cornerRadius="40dp" />
-
     </RelativeLayout>
-
-    <com.shuhart.stepview.StepView
-        android:id="@+id/stepView"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="25dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:padding="16dp"
-        app:sv_animationType="All"
-        app:sv_doneCircleColor="@color/green"
-        app:sv_doneCircleRadius="18dp"
-        app:sv_doneStepLineColor="@color/green"
-        app:sv_doneStepMarkColor="@color/white"
-        app:sv_nextStepLineColor="@color/darkBlue"
-        app:sv_nextTextColor="@color/darkBlue"
-        app:sv_selectedCircleColor="@color/darkBlue"
-        app:sv_selectedCircleRadius="16dp"
-        app:sv_selectedStepNumberColor="@color/white"
-        app:sv_selectedTextColor="@color/white"
-        app:sv_stepLineWidth="1dp"
-        app:sv_stepNumberTextSize="14sp"
-        app:sv_stepPadding="12dp"
-        app:sv_stepViewStyle="@style/StepView" />
 
     <View
         android:id="@+id/animate_view"
@@ -270,6 +102,5 @@
         android:layout_centerHorizontal="true"
         android:background="@color/darkBlue"
         android:visibility="gone" />
-
 
 </RelativeLayout>
