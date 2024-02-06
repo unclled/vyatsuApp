@@ -16,36 +16,40 @@ import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.vyatsuapp.interfaces.AuthorizationAPI;
+import com.example.vyatsuapp.utils.AuthRequestBody;
+import com.example.vyatsuapp.utils.AuthResponse;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Calendar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-    public CircularProgressButton SaveButton;
+    public CircularProgressButton LoginButton;
+
     private static final String LKVyatsuURL = "https://new.vyatsu.ru/";
     private final String Account = "account/";//главная
-    private final String IngoAboutStudy="obr/";//учеба
-    private final String  TimeTable="rasp";//расписание
+    private final String InfoAboutStudy="obr/";//учеба
+    private final String TimeTable="rasp";//расписание
+
     public TextInputLayout loginField;
     public TextInputLayout passwordField;
 
-    private String loginText;
-    private String passwordText;
+    private String loginText = null;
+    private String passwordText = null;
+
     private SharedPreferences sharedPreferences;
 
     Bitmap bitmap;
@@ -57,78 +61,87 @@ public class MainActivity extends AppCompatActivity {
 
         loginField = findViewById(R.id.LoginField);
         passwordField = findViewById(R.id.PasswordField);
-        SaveButton = findViewById(R.id.SaveButton);
+        LoginButton = findViewById(R.id.LoginButton);
         bitmap = BitmapFactory.decodeResource(getResources(), com.github.leandroborgesferreira.loadingbutton.R.drawable.ic_done_white_48dp);
+
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        loginText = sharedPreferences.getString("UserLogin", null);
+        passwordText = sharedPreferences.getString("UserPassword", null);
+
         isFirstStart();
     }
 
-    private boolean isTextInputLayoutNotEmpty(TextInputLayout login,TextInputLayout password) {
-        if (login.getEditText() != null&&password.getEditText()!=null) {
-            loginText = login.getEditText().getText().toString().trim();
-            passwordText=password.getEditText().getText().toString().trim();
-            return ((!loginText.isEmpty())&&(!passwordText.isEmpty()));
-        }
-        return false;
-    }
-
-    private void getAuthorization(){
-        try {
-            URL url = new URL(LKVyatsuURL + Account);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                Document document = (Document) Jsoup.connect("url");
-                Element contentDiv = document.getElementById("USER_LOGIN");
-            }
-
-            connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
     private void isFirstStart() {
         SharedPreferences sp = getSharedPreferences("hasStudentInfo", Context.MODE_PRIVATE);
         boolean hasStudentInfo = sp.getBoolean("hasStudentInfo", false);
 
-        if (!hasStudentInfo) {//||) { //Если нет какой-либо информации о студенте
+        if (!hasStudentInfo || loginText == null || passwordText == null) { //Если нет какой-либо информации о студенте
             SharedPreferences.Editor editor = sp.edit();
             editor.putBoolean("hasStudentInfo", true);
             editor.apply();
-            Calendar calendar = Calendar.getInstance();
-            //getStudentInfo();
-            getAuthorization();
         } else { //запуск активности с расписанием
-            startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
-            overridePendingTransition(0, 0);
+            loginField.setPlaceholderText(loginText);
+            passwordField.setPlaceholderText(passwordText);
+            LoginButton.startAnimation();
+            getAuthorization();
         }
     }
 
-    private void getStudentInfo() {
+    public void LoginPressed(View view) {
+        if (!isOnline()) tryAgain("Отсутствует подключение к интернету!");
 
+        if (loginField.getEditText() != null && passwordField.getEditText() != null) {
+            loginText = loginField.getEditText().getText().toString();
+            passwordText = passwordField.getEditText().getText().toString();
+
+            Pattern pattern = Pattern.compile("^(stud\\\\?[0-9]{6})|^(cstud\\\\?[0-9]{6})|^(usr\\\\?[0-9]{6})/gm");
+            Matcher matcher = pattern.matcher(loginText);
+            if (matcher.find()) {
+                LoginButton.startAnimation();
+                getAuthorization();
+            }
+        } else {
+            tryAgain("Заполните все поля!");
+        }
     }
 
-    public void ConfirmButtonPressed(View view) {
-        if (isOnline()) {
+    private void getAuthorization(){
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://new.vyatsu.ru/account/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        AuthRequestBody body = new AuthRequestBody(loginText, passwordText);
+        AuthorizationAPI api = retrofit.create(AuthorizationAPI.class);
+
+        Call<AuthResponse> call = api.authUser(body);
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (response.isSuccessful()) {
+                    AuthResponse serverAnswer = response.body();
+
+                    if (serverAnswer.isUserLoginIn()) {
+                        saveUserInfo();
+                        toNextPage();
+                    } else {
+                        tryAgain("Авторизация не прошла! Попробуйте еще раз");
+                    }
+                } else {
+                    tryAgain("Ошибка при выполнении запроса!_1");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                tryAgain("Ошибка при выполнении запроса!_2");
+            }
+        });
+    }
+
+/*    public void ConfirmButtonPressed(View view) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
-            if (1 > 2) {
-                Toast toast = Toast.makeText(
-                        this,
-                        "Заполните все поля!",
-                        Toast.LENGTH_LONG);
-                toast.show();
-            } else {
-                if (1 > 2) {
-                    Toast toast = Toast.makeText(
-                            this,
-                            "Укажите реальный курс",
-                            Toast.LENGTH_LONG);
-                    toast.show();
-                } else {
-                    //getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            //getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                     Thread thread = new Thread(() -> {
                         try {
                             runOnUiThread(() -> {});
@@ -137,34 +150,40 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                     thread.start();
-                }
-            }
-        } else {
-            Toast toast = Toast.makeText(
-                    this,
-                    "Нет подключения к интернету!",
-                    Toast.LENGTH_LONG);
-            toast.show();
-            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-        }
+    }*/
+
+    private void saveUserInfo() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("UserLogin", loginText);
+        editor.putString("UserPassword", passwordText);
+        editor.apply();
     }
 
-    public void SaveButtonPressed(View view) {
-        //if () {
-            SaveButton.startAnimation();
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.apply();
-            toNextPage();
-        //}
+    private void tryAgain(String text) {
+        LoginButton.revertAnimation();
+        Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+        LoginButton.startAnimation(shake);
+        Toast toast = Toast.makeText(
+                this,
+                text,
+                Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     private void toNextPage() {
         View animate_view = findViewById(R.id.animate_view);
         int[] coordinates = new int[2];
-        SaveButton.getLocationInWindow(coordinates);
-        int cx = coordinates[0] + SaveButton.getWidth() / 2 - animate_view.getLeft();
-        int cy = coordinates[1] + SaveButton.getHeight() / 2 - animate_view.getTop() - 100;
-        SaveButton.doneLoadingAnimation(1, bitmap);
+        LoginButton.getLocationInWindow(coordinates);
+        int cx = coordinates[0] + LoginButton.getWidth() / 2 - animate_view.getLeft();
+        int cy = coordinates[1] + LoginButton.getHeight() / 2 - animate_view.getTop() - 100;
+        LoginButton.doneLoadingAnimation(1, bitmap);
 
         Handler handler = new Handler();
         handler.postDelayed(() -> {
@@ -178,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAnimationStart(@NonNull Animator animation) {
                     handler.postDelayed(() -> {
-                        SaveButton.revertAnimation();
+                        LoginButton.revertAnimation();
                         animate_view.setVisibility(View.INVISIBLE);
                     }, 200);
                 }
@@ -195,21 +214,5 @@ public class MainActivity extends AppCompatActivity {
                 public void onAnimationRepeat(@NonNull Animator animation) {}
             });
         }, 700);
-    }
-
-    public void ClearAll(View view) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
-        editor.apply();
-
-        getStudentInfo();
-        SaveButton.setVisibility(View.GONE);
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

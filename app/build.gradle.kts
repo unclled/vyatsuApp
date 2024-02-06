@@ -45,6 +45,7 @@ dependencies {
     implementation ("org.jsoup:jsoup:1.17.2")
     implementation("com.github.leandroborgesferreira:loading-button-android:2.3.0")
     implementation ("com.google.android.material:material:1.11.0")
-    implementation ("net.openid:appauth:0.9.1")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.3.0")
 }
 
