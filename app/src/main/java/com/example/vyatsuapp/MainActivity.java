@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -24,12 +25,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.vyatsuapp.interfaces.AuthorizationAPI;
 import com.example.vyatsuapp.utils.AuthRequestBody;
 import com.example.vyatsuapp.utils.AuthResponse;
+import com.example.vyatsuapp.utils.ResponceInterceptor;
+import com.github.leandroborgesferreira.loadingbutton.BuildConfig;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -106,6 +111,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getAuthorization(){
+        // Создаем логгер HTTP-запросов только в режиме отладки
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        if(BuildConfig.DEBUG){//Это проверка условия на режим отладки
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        }
+        // Создаем клиент OkHttpClient с настройками логирования
+        OkHttpClient okClient = new OkHttpClient.Builder()
+                .addInterceptor(new ResponseInterceptor())
+                .addInterceptor(loggingInterceptor)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://new.vyatsu.ru/account/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -116,15 +132,13 @@ public class MainActivity extends AppCompatActivity {
         Call<AuthResponse> call = api.authUser(body);
         call.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+            public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
                 if (response.isSuccessful()) {
                     AuthResponse serverAnswer = response.body();
 
-                    if (serverAnswer.isUserLoginIn()) {
+                    if (serverAnswer != null && serverAnswer.isUserLoginIn()) {
                         saveUserInfo();
                         toNextPage();
-                    } else {
-                        tryAgain("Авторизация не прошла! Попробуйте еще раз");
                     }
                 } else {
                     tryAgain("Ошибка при выполнении запроса!_1");
@@ -132,8 +146,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
+                Log.e("RequestFailure", "Ошибка при выполнении запроса!_3", t);
                 tryAgain("Ошибка при выполнении запроса!_2");
+
             }
         });
     }
