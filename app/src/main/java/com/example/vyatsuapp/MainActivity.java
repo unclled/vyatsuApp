@@ -11,7 +11,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -25,11 +24,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.vyatsuapp.interfaces.AuthorizationAPI;
 import com.example.vyatsuapp.utils.AuthRequestBody;
 import com.example.vyatsuapp.utils.AuthResponse;
-import com.example.vyatsuapp.utils.ResponceInterceptor;
-import com.github.leandroborgesferreira.loadingbutton.BuildConfig;
+import com.example.vyatsuapp.utils.BasicAuthInterceptor;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,22 +112,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getAuthorization(){
-        // Создаем логгер HTTP-запросов только в режиме отладки
+    private void getAuthorization() {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        if(BuildConfig.DEBUG){//Это проверка условия на режим отладки
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        }
-        // Создаем клиент OkHttpClient с настройками логирования
-        OkHttpClient okClient = new OkHttpClient.Builder()
-                .addInterceptor(new ResponseInterceptor())
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS) // Время на подключение
+                .readTimeout(30, TimeUnit.SECONDS) // Время на чтение
+                .writeTimeout(30, TimeUnit.SECONDS) // Время на запись
+                .addInterceptor(new BasicAuthInterceptor(loginText, passwordText))
                 .addInterceptor(loggingInterceptor)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://new.vyatsu.ru/account/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+
         AuthRequestBody body = new AuthRequestBody(loginText, passwordText);
         AuthorizationAPI api = retrofit.create(AuthorizationAPI.class);
 
@@ -133,23 +141,23 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
-                if (response.isSuccessful()) {
-                    AuthResponse serverAnswer = response.body();
-
-                    if (serverAnswer != null && serverAnswer.isUserLoginIn()) {
-                        saveUserInfo();
-                        toNextPage();
-                    }
-                } else {
-                    tryAgain("Ошибка при выполнении запроса!_1");
-                }
+               /* if (response.isSuccessful()) {*/
+                    //AuthResponse serverAnswer = response.body();
+                    System.out.println("Зашли");
+                    saveUserInfo();
+                    toNextPage();
+               /* } else {
+                    tryAgain("Ошибка при выполнении запроса!");
+                }*/
             }
 
             @Override
             public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
-                Log.e("RequestFailure", "Ошибка при выполнении запроса!_3", t);
-                tryAgain("Ошибка при выполнении запроса!_2");
-
+                if (t instanceof SocketTimeoutException) {
+                    tryAgain("Время ожидания истекло, попробуйте еще раз!"); //не связано с этим
+                } else {
+                    tryAgain("Ошибка при выполнении запроса_2!"); //ошибка вылазит тут, if (response.isSuccessful()) никак не влияет на ситуацию
+                }
             }
         });
     }

@@ -8,6 +8,6 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface AuthorizationAPI {
-    @POST("/auth")
+    @POST("https://new.vyatsu.ru/account/")
     Call<AuthResponse> authUser(@Body AuthRequestBody body);
 }
