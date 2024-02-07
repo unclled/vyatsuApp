@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -24,14 +25,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.vyatsuapp.interfaces.AuthorizationAPI;
 import com.example.vyatsuapp.utils.AuthRequestBody;
 import com.example.vyatsuapp.utils.AuthResponse;
-import com.example.vyatsuapp.utils.BasicAuthInterceptor;
+import com.example.vyatsuapp.utils.ErrorBundle;
+import com.example.vyatsuapp.utils.ResponseInterceptor;
+import com.github.leandroborgesferreira.loadingbutton.BuildConfig;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import java.net.SocketTimeoutException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,52 +112,64 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getAuthorization() {
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
+    private void getAuthorization(){
+        // Создаем логгер HTTP-запросов только в режиме отладки
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS) // Время на подключение
-                .readTimeout(30, TimeUnit.SECONDS) // Время на чтение
-                .writeTimeout(30, TimeUnit.SECONDS) // Время на запись
-                .addInterceptor(new BasicAuthInterceptor(loginText, passwordText))
+        if(BuildConfig.DEBUG){//Это проверка условия на режим отладки
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        }
+        // Создаем клиент OkHttpClient с настройками логирования
+        OkHttpClient okClient = new OkHttpClient.Builder()
+                .addInterceptor(new ResponseInterceptor())
                 .addInterceptor(loggingInterceptor)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://new.vyatsu.ru/account/")
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
-
         AuthRequestBody body = new AuthRequestBody(loginText, passwordText);
         AuthorizationAPI api = retrofit.create(AuthorizationAPI.class);
 
         Call<AuthResponse> call = api.authUser(body);
-        call.enqueue(new Callback<>() {
+        call.enqueue(new Callback<>() {//Retrofit добавляет запрос в очередь и выполняет его асинхронно в фоновом потоке
             @Override
             public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
-               /* if (response.isSuccessful()) {*/
-                    //AuthResponse serverAnswer = response.body();
-                    System.out.println("Зашли");
-                    saveUserInfo();
-                    toNextPage();
-               /* } else {
-                    tryAgain("Ошибка при выполнении запроса!");
-                }*/
+                if (response.isSuccessful()) {
+                    AuthResponse serverAnswer = response.body();
+
+                    if (serverAnswer != null && serverAnswer.isUserLoginIn()) {
+                        saveUserInfo();
+                        toNextPage();
+                    }
+                } else {
+                    tryAgain("Ошибка при выполнении запроса!_1");
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
-                if (t instanceof SocketTimeoutException) {
-                    tryAgain("Время ожидания истекло, попробуйте еще раз!"); //не связано с этим
-                } else {
-                    tryAgain("Ошибка при выполнении запроса_2!"); //ошибка вылазит тут, if (response.isSuccessful()) никак не влияет на ситуацию
+                try {//попытка понять почему на моём устройстве высккивает исключение по call -> вывод:писать тесты
+                    ErrorBundle errorBundle = ErrorBundle.adapt(t);
+                    //assertThat(errorBundle.getAppMessage(), is("Authorization exception"));-> тесты
+                    /*testCompile 'org.mockito:mockito-core:1.9.5'
+                     testCompile 'junit:junit:4.12'
+                     import org.junit.Test;
+                     import static org.hamcrest.CoreMatchers.is;
+                     import static org.hamcrest.MatcherAssert.assertThat;
+                     public class SomethingTest {
+                     @Test
+                     public void testSomething() {
+                     assertThat(true, 1>1);
+                     }
+                     }   уже себе заготовки на тесты, буду разбираться то, что выше решение проблемы с компиляцией ассерта
+                    * */
+                } finally {
+                    CountDownLatch latch = null;
+                    latch.countDown();
                 }
+                Log.e("RequestFailure", "Ошибка при выполнении запроса!_3",t);
+                tryAgain("Ошибка при выполнении запроса!_2");
             }
         });
     }
