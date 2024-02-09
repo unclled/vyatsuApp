@@ -11,7 +11,7 @@
     <RelativeLayout
         android:id="@+id/upperBG"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="140dp"
         android:background="@color/brightBlue">
 
         <TextView
@@ -19,32 +19,76 @@
             android:layout_width="wrap_content"
             android:layout_height="60dp"
             android:layout_marginStart="28dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="8dp"
             android:fontFamily="@font/montserrat_bold"
             android:text="Расписание"
             android:textColor="@color/white"
             android:textSize="30sp" />
 
-        <Button
-            android:layout_width="200dp"
-            android:layout_height="48dp"
+        <HorizontalScrollView
             android:layout_below="@+id/WindowName"
-            android:fontFamily="@font/montserrat_bold"
-            android:gravity="bottom|center"
-            android:text="Расписание"
-            android:textSize="18sp" />
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:fillViewport="true">
 
-        <Button
-            android:layout_width="200dp"
-            android:layout_height="48dp"
-            android:layout_below="@+id/WindowName"
-            android:fontFamily="@font/montserrat_bold"
-            android:layout_marginStart="220dp"
-            android:gravity="bottom|center"
-            android:text="Настройки"
-            android:textSize="18sp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/TimetableButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:text="@string/Timetable"
+                    android:onClick="timetablePressed"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/Documents"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:text="@string/Documents"
+                    android:onClick="DocumentsPressed"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/Surveys"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:text="@string/Surveys"
+                    android:onClick="SurveysPressed"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/PersonalData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:text="@string/PersonalData"
+                    android:onClick="PersonalDataPressed"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/SettingsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_bold"
+                    android:text="@string/Settings"
+                    android:onClick="SettingsPressed"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+
+
+        </HorizontalScrollView>
+
 
 
     </RelativeLayout>

@@ -5,4 +5,9 @@
     <string name="toolTip">Выполни вход, используя логин и пароль от личного кабинета!</string>
     <string name="Login">Логин</string>
     <string name="Password">Пароль</string>
+    <string name="Settings">Настройки</string>
+    <string name="Timetable">Расписание</string>
+    <string name="Surveys">Опросы</string>
+    <string name="Documents">Документы</string>
+    <string name="PersonalData">Персональные данные</string>
 </resources>

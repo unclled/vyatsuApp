@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -23,20 +24,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vyatsuapp.interfaces.AuthorizationAPI;
 import com.example.vyatsuapp.utils.AuthRequestBody;
-import com.example.vyatsuapp.utils.AuthResponse;
 import com.example.vyatsuapp.utils.BasicAuthInterceptor;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
+import okio.BufferedSource;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,11 +48,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     public CircularProgressButton LoginButton;
-
-    private static final String LKVyatsuURL = "https://new.vyatsu.ru/";
-    private final String Account = "account/";//главная
-    private final String InfoAboutStudy="obr/";//учеба
-    private final String TimeTable="rasp";//расписание
 
     public TextInputLayout loginField;
     public TextInputLayout passwordField;
@@ -86,9 +84,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sp.edit();
             editor.putBoolean("hasStudentInfo", true);
             editor.apply();
-        } else { //запуск активности с расписанием
-            loginField.setPlaceholderText(loginText);
-            passwordField.setPlaceholderText(passwordText);
+        } else { //запуск активности с расписанием*/
             LoginButton.startAnimation();
             getAuthorization();
         }
@@ -112,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getAuthorization() {
+    public void getAuthorization() {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -129,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://new.vyatsu.ru/account/")
+                .baseUrl("https://new.vyatsu.ru/account/obr/rasp/")
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
@@ -137,30 +133,41 @@ public class MainActivity extends AppCompatActivity {
         AuthRequestBody body = new AuthRequestBody(loginText, passwordText);
         AuthorizationAPI api = retrofit.create(AuthorizationAPI.class);
 
-        Call<AuthResponse> call = api.authUser(body);
+        Call<ResponseBody> call = api.authUser(body);
         call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<AuthResponse> call, @NonNull Response<AuthResponse> response) {
-               /* if (response.isSuccessful()) {*/
-                    //AuthResponse serverAnswer = response.body();
-                    System.out.println("Зашли");
-                    saveUserInfo();
-                    toNextPage();
-               /* } else {
-                    tryAgain("Ошибка при выполнении запроса!");
-                }*/
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        try {
+                            BufferedSource source = responseBody.source();
+                            String htmlContent = source.readUtf8();
+
+                            saveUserInfo();
+                            toNextPage(htmlContent);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        tryAgain("Некорректный логин или пароль!");
+                    }
+                }
             }
 
             @Override
-            public void onFailure(@NonNull Call<AuthResponse> call, @NonNull Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 if (t instanceof SocketTimeoutException) {
-                    tryAgain("Время ожидания истекло, попробуйте еще раз!"); //не связано с этим
+                    tryAgain("Время ожидания истекло, попробуйте еще раз!");
                 } else {
-                    tryAgain("Ошибка при выполнении запроса_2!"); //ошибка вылазит тут, if (response.isSuccessful()) никак не влияет на ситуацию
+
+                    Log.e("RequestFailure", "Ошибка ", t);
+                    tryAgain("Ошибка при выполнении запроса_2!");
                 }
             }
         });
     }
+
+
 
 /*    public void ConfirmButtonPressed(View view) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -201,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    private void toNextPage() {
+    private void toNextPage(String htmlContent) {
         View animate_view = findViewById(R.id.animate_view);
         int[] coordinates = new int[2];
         LoginButton.getLocationInWindow(coordinates);
@@ -228,7 +235,9 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onAnimationEnd(@NonNull Animator animation) {
-                    startActivity(new Intent(getApplicationContext(), BasicMainActivity.class));
+                    Intent intent = new Intent(MainActivity.this, BasicMainActivity.class);
+                    intent.putExtra("TIMETABLE", htmlContent);
+                    startActivity(intent);
                     overridePendingTransition(0, 0);
                 }
 

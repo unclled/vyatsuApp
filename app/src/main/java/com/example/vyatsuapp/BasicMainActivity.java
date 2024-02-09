@@ -2,17 +2,23 @@ package com.example.vyatsuapp;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Calendar;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class BasicMainActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
 
     private TextView text;
+    private TextView header;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,28 +26,64 @@ public class BasicMainActivity extends AppCompatActivity {
         setContentView(R.layout.basic_main_activity);
 
         text = findViewById(R.id.timeTableURL);
+        header = findViewById(R.id.WindowName);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String selected_TypeEd = sharedPreferences.getString("EducationType", null);
-        String selected_Faculty = sharedPreferences.getString("Faculty", null);
-        String selected_Group = sharedPreferences.getString("Group", null);
-        int Semester;
-        Calendar calendar = Calendar.getInstance();
-        if (calendar.get(Calendar.MONTH) <= 8) {
-            Semester = 2;
-        } else {
-            Semester = 1;
-        }
+        String timetable = (String) getIntent().getSerializableExtra("TIMETABLE");
         Thread thread = new Thread(() -> {
-            //progressBar.setVisibility(View.VISIBLE);
+            StringBuilder allTimetable = parseTimetable(timetable);
+            runOnUiThread(() -> text.setText(allTimetable));
+        }); thread.start();
+    }
 
-            try {
+    private StringBuilder parseTimetable(String timetable) {
+        StringBuilder allTimetable = new StringBuilder();
+        Document document = Jsoup.parse(timetable);
+        Elements programElements = document.select(".day-container");
 
-                runOnUiThread(() -> text.setText(""));
-            } catch (Exception e) {
-                e.printStackTrace();
+        for (Element programElement : programElements) {
+            Elements classesDesc = programElement.select(".font-normal");
+            String date = classesDesc.select("b").text();
+            allTimetable.append(date).append("\n");
+            Elements dayClasses = programElement.select(".day-pair");
+
+            for (Element currentClass : dayClasses) {
+                String classData = currentClass.select(".font-semibold").text();
+                String classDesc = currentClass.select(".pair_desc").text();
+
+                allTimetable.append(classData).append("\n").append(classDesc).append("\n");
             }
-        });
-        thread.start();
+
+        }
+        return allTimetable;
+    }
+
+    public void timetablePressed(View view) {
+        Animation windowChange = AnimationUtils.loadAnimation(this, R.anim.window_change);
+        header.startAnimation(windowChange);
+        header.setText("Расписание");
+    }
+
+    public void SettingsPressed(View view) {
+        Animation windowChange = AnimationUtils.loadAnimation(this, R.anim.window_change);
+        header.startAnimation(windowChange);
+        header.setText("Настройки");
+    }
+
+    public void PersonalDataPressed(View view) {
+        Animation windowChange = AnimationUtils.loadAnimation(this, R.anim.window_change);
+        header.startAnimation(windowChange);
+        header.setText("Персональные данные");
+    }
+
+    public void SurveysPressed(View view) {
+        Animation windowChange = AnimationUtils.loadAnimation(this, R.anim.window_change);
+        header.startAnimation(windowChange);
+        header.setText("Опросы");
+    }
+
+    public void DocumentsPressed(View view) {
+        Animation windowChange = AnimationUtils.loadAnimation(this, R.anim.window_change);
+        header.startAnimation(windowChange);
+        header.setText("Документы");
     }
 }

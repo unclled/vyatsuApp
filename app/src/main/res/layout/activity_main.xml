@@ -14,30 +14,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/fade_bg" >
 
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="20dp"-->
-<!--            android:layout_marginTop="24dp"-->
-<!--            android:fontFamily="@font/montserrat_bold"-->
-<!--            android:text="@string/Greetings"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textSize="28sp" />-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="20dp"-->
-<!--            android:layout_marginTop="70dp"-->
-<!--            android:layout_marginEnd="20dp"-->
-<!--            android:layout_marginBottom="20dp"-->
-<!--            android:fontFamily="@font/montserrat_bold"-->
-<!--            android:text="@string/toolTip"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textSize="14sp" />-->
-
-
         <RelativeLayout
             android:layout_width="340dp"
             android:layout_height="420dp"
@@ -132,6 +108,8 @@
 
         </RelativeLayout>
 
+    </RelativeLayout>
+
     <View
         android:id="@+id/animate_view"
         android:layout_width="match_parent"
@@ -139,7 +117,5 @@
         android:layout_centerHorizontal="true"
         android:background="@color/darkBlue"
         android:visibility="gone" />
-
-    </RelativeLayout>
 
 </RelativeLayout>
