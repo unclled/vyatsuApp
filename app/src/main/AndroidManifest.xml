@@ -18,9 +18,6 @@
         android:theme="@style/Theme.VyatsuApp"
         tools:targetApi="31">
         <activity
-            android:name=".BasicMainActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true">
@@ -30,6 +27,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Pages.Authorization.AuthorizationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".Pages.Timetable.TimetableActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"

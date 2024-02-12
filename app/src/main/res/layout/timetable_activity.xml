@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/BasicMainActivity"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/timetableActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/brightBG"
-    android:gravity="center_horizontal"
-    tools:context=".BasicMainActivity">
+    android:gravity="center_horizontal" >
 
     <RelativeLayout
         android:id="@+id/upperBG"
@@ -20,12 +18,11 @@
             android:layout_height="60dp"
             android:layout_marginStart="28dp"
             android:layout_marginTop="24dp"
-            android:layout_marginEnd="20dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/montserrat_bold"
-            android:text="Расписание"
+            android:text="@string/Timetable"
             android:textColor="@color/white"
-            android:textSize="30sp" />
+            android:textSize="28sp" />
 
         <HorizontalScrollView
             android:layout_below="@+id/WindowName"
@@ -36,7 +33,6 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
-
                 android:orientation="horizontal" >
 
                 <Button
@@ -45,8 +41,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_bold"
                     android:text="@string/Timetable"
+                    android:textColor="@color/white"
                     android:onClick="timetablePressed"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    style="?android:attr/buttonBarButtonStyle" />
 
                 <Button
                     android:id="@+id/Documents"
@@ -54,8 +52,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_bold"
                     android:text="@string/Documents"
-                    android:onClick="DocumentsPressed"
-                    android:textSize="18sp" />
+                    android:textColor="@color/white"
+                    android:onClick="documentsPressed"
+                    android:textSize="18sp"
+                    style="?android:attr/buttonBarButtonStyle" />
 
                 <Button
                     android:id="@+id/Surveys"
@@ -63,8 +63,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_bold"
                     android:text="@string/Surveys"
-                    android:onClick="SurveysPressed"
-                    android:textSize="18sp" />
+                    android:textColor="@color/white"
+                    android:onClick="surveysPressed"
+                    android:textSize="18sp"
+                    style="?android:attr/buttonBarButtonStyle" />
 
                 <Button
                     android:id="@+id/PersonalData"
@@ -72,8 +74,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_bold"
                     android:text="@string/PersonalData"
-                    android:onClick="PersonalDataPressed"
-                    android:textSize="18sp" />
+                    android:textColor="@color/white"
+                    android:onClick="personalDataPressed"
+                    android:textSize="18sp"
+                    style="?android:attr/buttonBarButtonStyle" />
 
                 <Button
                     android:id="@+id/SettingsButton"
@@ -81,8 +85,10 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_bold"
                     android:text="@string/Settings"
-                    android:onClick="SettingsPressed"
-                    android:textSize="18sp" />
+                    android:textColor="@color/white"
+                    android:onClick="settingsPressed"
+                    android:textSize="18sp"
+                    style="?android:attr/buttonBarButtonStyle" />
 
             </LinearLayout>
 
@@ -94,9 +100,11 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/Timetable"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/upperBG">
+
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
@@ -110,22 +118,10 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="Тут будет инфа"
+                android:text="@string/Timetable"
                 android:textSize="20sp" />
         </ScrollView>
+
     </RelativeLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:indeterminateTint="@color/darkBlue"
-            android:visibility="gone" />
-    </FrameLayout>
 </RelativeLayout>

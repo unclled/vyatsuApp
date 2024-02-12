@@ -1,4 +1,4 @@
-package com.example.vyatsuapp.interfaces;
+package com.example.vyatsuapp.Pages.Authorization;
 
 import com.example.vyatsuapp.utils.AuthRequestBody;
 
