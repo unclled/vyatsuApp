@@ -167,7 +167,6 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        /* TODO работа с утечкой памяти у гитхабовских библиотек */
         presenter.detachView(); //освобождаем View
         if (isFinishing()) {
             presenter.destroy();

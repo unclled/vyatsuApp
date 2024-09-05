@@ -1,6 +1,5 @@
 package com.example.vyatsuapp.Pages.Timetable;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -46,10 +45,8 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         }); thread.start();
     }
 
-    @SuppressLint("SimpleDateFormat")
     @Override
     public StringBuilder parseTimetable(String timetable) {
-        //List<String> scheduleDataList = new ArrayList<>();
         String day = getCurrentDay();
         Date currentDate, actualDate;
         try {
@@ -71,8 +68,11 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
+
+            // Убедимся, что мы обрабатываем данные только будущих дней
             if (currentDate.before(actualDate)) {
-                allTimetable.append(receivedDate).append("\n\n");
+                StringBuilder dailyTimetable = new StringBuilder();
+                dailyTimetable.append(receivedDate).append("\n\n");
 
                 Elements dayClasses = programElement.select(".day-pair");
 
@@ -80,14 +80,16 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                     String classData = currentClass.select(".font-semibold").text();
                     String classDesc = currentClass.select(".pair_desc").text();
 
-                    allTimetable.append(classData).append("\n").append(classDesc).append("\n\n");
-                    //scheduleDataList.add(allTimetable.toString());
+                    dailyTimetable.append(classData).append("\n").append(classDesc).append("\n\n");
                 }
 
+                // Добавляем каждый день как отдельную запись
+                allTimetable.append(dailyTimetable).append("\n\n\n");
             }
         }
         return allTimetable;
     }
+
 
     @Override
     public void getAuthorization(String login, String password) {

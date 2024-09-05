@@ -10,8 +10,8 @@ public interface Timetable {
     interface View extends MVPView {
         void updatePressed(android.view.View view);
         void updateLastAuthorization();
-        void timetablePressed(android.view.View view);
-        void settingsPressed(android.view.View view);
+
+        void logoutPressed(android.view.View view);
         void setText(String timetableText);
         Context getContext();
         void setHeaderText(String text);

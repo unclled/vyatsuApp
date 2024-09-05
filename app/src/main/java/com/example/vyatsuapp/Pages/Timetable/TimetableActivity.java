@@ -1,7 +1,11 @@
 package com.example.vyatsuapp.Pages.Timetable;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -11,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.vyatsuapp.Pages.Authorization.AuthorizationActivity;
 import com.example.vyatsuapp.R;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 
@@ -45,8 +50,8 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         lastUpdate = findViewById(R.id.lastUpdate);
         updateButton = findViewById(R.id.updateButton);
-        List<String> timetableDataList = new ArrayList<>(); // Здесь должны быть ваши данные
-        adapter = new TimetableAdapter(timetableDataList);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        runOnUiThread(() -> lastUpdate.setText(sharedPreferences.getString("LASTUPDATE", null)));
         recyclerView.setAdapter(adapter);
     }
 
@@ -57,13 +62,14 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
             List<String> timetableDataList = new ArrayList<>();
             for (String day : days) {
                 if (!day.trim().isEmpty()) {
-                    timetableDataList.add(day);
+                    timetableDataList.add(day.trim());
                 }
             }
             adapter = new TimetableAdapter(timetableDataList);
             recyclerView.setAdapter(adapter);
         });
     }
+
 
     @Override
     public void setHeaderText(String text) {
@@ -92,23 +98,35 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         String timeText = timeFormat.format(currentDate);
         String month = calendar.getDisplayName(Calendar.MONTH,
                 Calendar.LONG_FORMAT, new Locale("ru"));
-        runOnUiThread(() -> lastUpdate.setText("Обновлено: " + dateText + " " + month + " " + timeText));
+        String updated = "Обновлено: " + dateText + " " + month + " " + timeText;
+        runOnUiThread(() -> lastUpdate.setText(updated));
         setText(presenter.getAllTimetable().toString());
-        /* TODO  нормальное отображение времени + сохранение последнего обновления + UI */
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("LASTUPDATE", updated);
+        editor.apply();
     }
 
     @Override
-    public void timetablePressed(View view) {
-        setHeaderText("Расписание");
-    }
-
-    @Override
-    public void settingsPressed(View view) {
-        setHeaderText("Настройки");
+    public void logoutPressed(View view) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("UserLogin");
+        editor.remove("UserPassword");
+        editor.remove("hasStudentInfo");
+        editor.apply();
+        Intent intent = new Intent(TimetableActivity.this, AuthorizationActivity.class);
+        startActivity(intent);
     }
 
     @Override
     public Context getContext() {
         return this;
+    }
+
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        //запрет возвращаться назад
     }
 }

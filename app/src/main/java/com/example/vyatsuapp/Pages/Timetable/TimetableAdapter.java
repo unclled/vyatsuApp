@@ -29,11 +29,19 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onBindViewHolder(@NonNull TimetableViewHolder holder, int position) {
-        String timetableEntry = timetableList.get(position);
+        String timetableEntry = String.valueOf(timetableList.get(position));
         String[] parts = timetableEntry.split("\n\n", 2); // разделяем на дату и расписание
-        holder.dateTextView.setText(parts[0]); // дата
-        holder.classInfoTextView.setText(parts[1]); // расписание
+
+        // Проверяем, есть ли у нас обе части: дата и расписание.
+        if (parts.length == 2) {
+            holder.dateTextView.setText(parts[0]); // Дата
+            holder.classInfoTextView.setText(parts[1]); // Расписание
+        } else {
+            holder.dateTextView.setText(parts[0]); // Только дата
+            holder.classInfoTextView.setText(""); // Пустое расписание, если второй части нет
+        }
     }
+
 
     @Override
     public int getItemCount() {
