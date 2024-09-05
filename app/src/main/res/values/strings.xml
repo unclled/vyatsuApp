@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VyatsuApp</string>
+    <string name="app_name">Расписание ВятГУ</string>
     <string name="SaveButton">Войти</string>
     <string name="Greetings">Авторизация</string>
     <string name="toolTip">Выполни вход, используя логин и пароль от личного кабинета!</string>
