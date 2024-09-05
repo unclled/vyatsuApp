@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/brightBG"
-    android:gravity="center_horizontal" >
+    android:gravity="center_horizontal">
 
     <RelativeLayout
         android:id="@+id/upperBG"
@@ -24,55 +24,49 @@
             android:textColor="@color/white"
             android:textSize="28sp" />
 
-        <HorizontalScrollView
-            android:layout_below="@+id/WindowName"
+        <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/updateButton"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="28dp"
+            android:background="#00FFFFFF"
+            android:foreground="@drawable/update"
+            android:onClick="updatePressed"
+            android:rotation="180" />
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:fillViewport="true">
+            android:layout_below="@+id/WindowName"
+            android:fillViewport="true"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:orientation="horizontal" >
+            <Button
+                android:id="@+id/TimetableButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="194dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_bold"
+                android:onClick="timetablePressed"
+                android:text="@string/Timetable"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
 
-                <Button
-                    android:id="@+id/TimetableButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/montserrat_bold"
-                    android:text="@string/Timetable"
-                    android:textColor="@color/white"
-                    android:onClick="timetablePressed"
-                    android:textSize="18sp"
-                    style="?android:attr/buttonBarButtonStyle" />
+            <Button
+                android:id="@+id/SettingsButton"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="194dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_bold"
+                android:onClick="settingsPressed"
+                android:text="@string/Settings"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
 
-                <Button
-                    android:id="@+id/PersonalData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/montserrat_bold"
-                    android:text="@string/PersonalData"
-                    android:textColor="@color/white"
-                    android:onClick="personalDataPressed"
-                    android:textSize="18sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-                <Button
-                    android:id="@+id/SettingsButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/montserrat_bold"
-                    android:text="@string/Settings"
-                    android:textColor="@color/white"
-                    android:onClick="settingsPressed"
-                    android:textSize="18sp"
-                    style="?android:attr/buttonBarButtonStyle" />
-
-            </LinearLayout>
-
-
-        </HorizontalScrollView>
-
+        </LinearLayout>
 
 
     </RelativeLayout>
@@ -87,51 +81,48 @@
             android:id="@+id/updateBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="6dp"
-            android:layout_marginStart="10dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/lastUpdate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="385dp"
+                android:layout_height="26dp"
                 android:layout_alignParentStart="true"
                 android:fontFamily="@font/montserrat_bold"
+                android:singleLine="true"
                 android:text="@string/lastUpdateText"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
-            <com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton
-                android:id="@+id/updateButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginEnd="10dp"
-                android:background="#00FFFFFF"
-                android:foreground="@drawable/update"
-                android:onClick="updatePressed"
-                android:rotation="-360" />
 
         </RelativeLayout>
 
-
         <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/updateBar" >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/updateBar">
 
-            <TextView
-                android:id="@+id/timetableInfo"
-                android:fontFamily="@font/montserrat_bold"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                android:text="@string/Timetable"
-                android:textSize="20sp" />
+                android:layout_below="@id/updateBar" />
+            <!--            <TextView-->
+            <!--                android:id="@+id/timetableInfo"-->
+
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_margin="10dp"-->
+            <!--                android:layout_marginStart="10dp"-->
+            <!--                android:layout_marginTop="10dp"-->
+            <!--                android:layout_marginEnd="10dp"-->
+            <!--                android:layout_marginBottom="10dp"-->
+            <!--                android:fontFamily="@font/montserrat_bold"-->
+            <!--                android:text="@string/Timetable"-->
+            <!--                android:textSize="20sp" />-->
         </ScrollView>
+
 
     </RelativeLayout>
 

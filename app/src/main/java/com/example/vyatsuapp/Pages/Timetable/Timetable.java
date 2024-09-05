@@ -12,7 +12,6 @@ public interface Timetable {
         void updateLastAuthorization();
         void timetablePressed(android.view.View view);
         void settingsPressed(android.view.View view);
-        void personalDataPressed(android.view.View view);
         void setText(String timetableText);
         Context getContext();
         void setHeaderText(String text);
@@ -24,5 +23,7 @@ public interface Timetable {
         String getHTMLTimetable();
         StringBuilder parseTimetable(String timetable);
         String getCurrentDay();
+
+        StringBuilder getAllTimetable();
     }
 }

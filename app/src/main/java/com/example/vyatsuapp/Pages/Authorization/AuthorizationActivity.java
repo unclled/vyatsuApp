@@ -115,9 +115,12 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
                 }
 
                 @Override
-                public void onAnimationCancel(@NonNull Animator animation) {}
+                public void onAnimationCancel(@NonNull Animator animation) {
+                }
+
                 @Override
-                public void onAnimationRepeat(@NonNull Animator animation) {}
+                public void onAnimationRepeat(@NonNull Animator animation) {
+                }
             });
         }, 700);
     }
@@ -139,10 +142,10 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
     public void blockWindow() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(
-                                getWindow().
-                                getDecorView().
-                                getWindowToken(),
-                            0);
+                getWindow().
+                        getDecorView().
+                        getWindowToken(),
+                0);
 
         getWindow().setFlags(
                 WindowManager.
@@ -154,10 +157,11 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
     }
 
     @Override
-    public void unlockWindow() { getWindow().clearFlags(
-            WindowManager.
-                    LayoutParams.
-                    FLAG_NOT_TOUCHABLE);
+    public void unlockWindow() {
+        getWindow().clearFlags(
+                WindowManager.
+                        LayoutParams.
+                        FLAG_NOT_TOUCHABLE);
     }
 
     @Override

@@ -8,18 +8,27 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vyatsuapp.R;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class TimetableActivity extends AppCompatActivity implements Timetable.View {
     private TextView text;
     private TextView header;
     private TextView lastUpdate;
-
-    Timetable.Presenter presenter;
+    private RecyclerView recyclerView;
+    private TimetableAdapter adapter;
+    private Timetable.Presenter presenter;
 
     private CircularProgressButton updateButton;
 
@@ -27,21 +36,33 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.timetable_activity);
-        presenter = new TimetablePresenter();
 
-        text = findViewById(R.id.timetableInfo);
-        header = findViewById(R.id.WindowName);
+        presenter = new TimetablePresenter();
+        presenter.attachView(this);
+        presenter.viewIsReady();
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         lastUpdate = findViewById(R.id.lastUpdate);
         updateButton = findViewById(R.id.updateButton);
-
-        presenter.attachView(this); //привязка View к презентеру
-
-        presenter.viewIsReady();
+        List<String> timetableDataList = new ArrayList<>(); // Здесь должны быть ваши данные
+        adapter = new TimetableAdapter(timetableDataList);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void setText(String timetableText) {
-        runOnUiThread(() -> text.setText(timetableText));
+        runOnUiThread(() -> {
+            String[] days = timetableText.split("\n\n\n"); // Разделяем дни
+            List<String> timetableDataList = new ArrayList<>();
+            for (String day : days) {
+                if (!day.trim().isEmpty()) {
+                    timetableDataList.add(day);
+                }
+            }
+            adapter = new TimetableAdapter(timetableDataList);
+            recyclerView.setAdapter(adapter);
+        });
     }
 
     @Override
@@ -64,11 +85,15 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     public void updateLastAuthorization() {
         updateButton.clearAnimation();
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DATE);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int hours = calendar.get(Calendar.HOUR);
-        int minutes = calendar.get(Calendar.MINUTE);
-        runOnUiThread(() -> lastUpdate.setText("Последнее обновление:\n" + day + ". " + month + ", " + hours + ":" + minutes));
+        Date currentDate = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("dd", Locale.getDefault());
+        String dateText = dateFormat.format(currentDate);
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        String timeText = timeFormat.format(currentDate);
+        String month = calendar.getDisplayName(Calendar.MONTH,
+                Calendar.LONG_FORMAT, new Locale("ru"));
+        runOnUiThread(() -> lastUpdate.setText("Обновлено: " + dateText + " " + month + " " + timeText));
+        setText(presenter.getAllTimetable().toString());
         /* TODO  нормальное отображение времени + сохранение последнего обновления + UI */
     }
 
@@ -80,11 +105,6 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     @Override
     public void settingsPressed(View view) {
         setHeaderText("Настройки");
-    }
-
-    @Override
-    public void personalDataPressed(View view) {
-        setHeaderText("Персональные данные");
     }
 
     @Override

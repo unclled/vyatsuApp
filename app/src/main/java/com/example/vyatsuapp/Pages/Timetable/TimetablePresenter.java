@@ -35,7 +35,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TimetablePresenter extends PresenterBase<Timetable.View> implements Timetable.Presenter {
-
+    //private List<String> scheduleDataList;
+    StringBuilder allTimetable;
     @Override
     public void viewIsReady() {
         String timetable = getHTMLTimetable();
@@ -48,6 +49,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     @SuppressLint("SimpleDateFormat")
     @Override
     public StringBuilder parseTimetable(String timetable) {
+        //List<String> scheduleDataList = new ArrayList<>();
         String day = getCurrentDay();
         Date currentDate, actualDate;
         try {
@@ -55,7 +57,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        StringBuilder allTimetable = new StringBuilder();
+        allTimetable = new StringBuilder();
         Document document = Jsoup.parse(timetable);
         Elements programElements = document.select(".day-container");
 
@@ -79,11 +81,11 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                     String classDesc = currentClass.select(".pair_desc").text();
 
                     allTimetable.append(classData).append("\n").append(classDesc).append("\n\n");
+                    //scheduleDataList.add(allTimetable.toString());
                 }
 
             }
         }
-
         return allTimetable;
     }
 
@@ -118,10 +120,9 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                         try {
                             BufferedSource source = responseBody.source();
                             String htmlContent = source.readUtf8();
-
-                            parseTimetable(htmlContent);
+                            applyHTMLResponse(htmlContent);
+                            getView().setText(parseTimetable(htmlContent).toString());
                             getView().updateLastAuthorization();
-
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -158,5 +159,14 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         return sharedPreferences.getString("HTMLResponse", null);
     }
 
+    public void applyHTMLResponse(String htmlContent) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("HTMLResponse", htmlContent);
+        editor.apply();
+    }
 
+    public StringBuilder getAllTimetable() {
+        return allTimetable;
+    }
 }

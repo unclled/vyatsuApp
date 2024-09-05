@@ -46,22 +46,20 @@
                 android:fontFamily="@font/montserrat_bold"
                 android:hint="@string/Login"
                 android:textColorHint="@color/brightText"
+                app:boxStrokeColor="@color/darkBlue"
+                app:cursorColor="@color/darkBlue"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true"
                 app:helperText="Формат: studXXXXXX или usrXXXXXX"
                 app:helperTextEnabled="true"
-                app:hintTextColor="@color/darkBlue"
-                app:cursorColor="@color/darkBlue"
                 app:helperTextTextColor="@color/brightText"
-                app:startIconTint="@color/darkBlue"
-                app:boxStrokeColor="@color/darkBlue"
-                >
+                app:hintTextColor="@color/darkBlue"
+                app:startIconTint="@color/darkBlue">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/black"
-                    />
+                    android:textColor="@color/black" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,13 +75,13 @@
                 android:fontFamily="@font/montserrat_bold"
                 android:hint="@string/Password"
                 android:textColorHint="@color/brightText"
+                app:boxStrokeColor="@color/darkBlue"
+                app:cursorColor="@color/darkBlue"
                 app:endIconMode="password_toggle"
                 app:errorEnabled="true"
-                app:startIconContentDescription="@string/Password"
                 app:hintTextColor="@color/darkBlue"
-                app:cursorColor="@color/darkBlue"
-                app:startIconTint="@color/darkBlue"
-                app:boxStrokeColor="@color/darkBlue">
+                app:startIconContentDescription="@string/Password"
+                app:startIconTint="@color/darkBlue">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
