@@ -6,10 +6,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vyatsuapp.R;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.TimetableViewHolder> {
@@ -29,19 +31,20 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     @Override
     public void onBindViewHolder(@NonNull TimetableViewHolder holder, int position) {
-        String timetableEntry = String.valueOf(timetableList.get(position));
-        String[] parts = timetableEntry.split("\n\n", 2); // разделяем на дату и расписание
+        String timetableEntry = timetableList.get(position);
+        String[] parts = timetableEntry.split("\n\n", 2);
 
-        // Проверяем, есть ли у нас обе части: дата и расписание.
+        holder.dateTextView.setText(parts[0]);
+
         if (parts.length == 2) {
-            holder.dateTextView.setText(parts[0]); // Дата
-            holder.classInfoTextView.setText(parts[1]); // Расписание
-        } else {
-            holder.dateTextView.setText(parts[0]); // Только дата
-            holder.classInfoTextView.setText(""); // Пустое расписание, если второй части нет
+            String schedule = parts[1];
+            String[] classes = schedule.split("\n\n");
+
+            // Set up the nested RecyclerView for classes
+            ClassesAdapter classesAdapter = new ClassesAdapter(Arrays.asList(classes));
+            holder.classesRecyclerView.setAdapter(classesAdapter);
         }
     }
-
 
     @Override
     public int getItemCount() {
@@ -50,12 +53,13 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
 
     public static class TimetableViewHolder extends RecyclerView.ViewHolder {
         TextView dateTextView;
-        TextView classInfoTextView;
+        RecyclerView classesRecyclerView;
 
         public TimetableViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
-            classInfoTextView = itemView.findViewById(R.id.classInfoTextView);
+            classesRecyclerView = itemView.findViewById(R.id.classesRecyclerView);
+            classesRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
         }
     }
 }

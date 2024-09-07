@@ -11,4 +11,8 @@
     <string name="Documents">Документы</string>
     <string name="PersonalData">Персональные данные</string>
     <string name="lastUpdateText">Обновлено:</string>
+    <string name="dateTextView">День недели XX.XX.XXXX</string>
+    <string name="classNumberTextView">Пара X: XX:XX-XX:XX</string>
+    <string name="classInfoTextView">..., \nПреподаватель ...</string>
+    <string name="classroomTextView">XX-XXX</string>
 </resources>

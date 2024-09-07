@@ -1,26 +1,37 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:background="@drawable/item_border"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_margin="6dp"
+    android:background="@drawable/item_border">
+
+    <View
+        android:id="@+id/bgView"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/bg" />
 
     <TextView
         android:id="@+id/dateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="День недели XX.XX.XXXX"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/montserrat_bold"/>
-
-    <TextView
-        android:id="@+id/classInfoTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/bgView"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Пара X: XX:XX-XX:XX\n..., \nПреподаватель ..., XX-XXX"
-        android:textSize="16sp"
-        />
-</LinearLayout>
+        android:fontFamily="@font/montserrat_bold"
+        android:text="@string/dateTextView"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/classesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bgView"
+        android:nestedScrollingEnabled="false"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="16dp"/>
+</RelativeLayout>

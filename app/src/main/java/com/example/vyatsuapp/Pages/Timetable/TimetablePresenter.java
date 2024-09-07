@@ -34,7 +34,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TimetablePresenter extends PresenterBase<Timetable.View> implements Timetable.Presenter {
-    //private List<String> scheduleDataList;
     StringBuilder allTimetable;
     @Override
     public void viewIsReady() {
