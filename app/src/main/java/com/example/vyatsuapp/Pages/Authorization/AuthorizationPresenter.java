@@ -60,6 +60,7 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
 
         Call<ResponseBody> call = api.authUser(body);
         call.enqueue(new Callback<>() {
+            @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
@@ -68,19 +69,28 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
                             BufferedSource source = responseBody.source();
                             String htmlContent = source.readUtf8();
 
-                            applyHTMLResponse(htmlContent);
-
-                            saveUserInfo();
-                            getView().unlockWindow();
-                            getView().toNextPage(htmlContent);
+                            if (htmlContent.contains("Выйти")) {
+                                applyHTMLResponse(htmlContent);
+                                saveUserInfo();
+                                getView().unlockWindow();
+                                getView().toNextPage(htmlContent);
+                            } else {
+                                getView().tryAgain("Некорректный пароль!");
+                                getView().unlockWindow();
+                            }
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+                    } else {
+                        getView().tryAgain("Некорректный логин или пароль!");
+                        getView().unlockWindow();
                     }
                 } else {
                     getView().tryAgain("Некорректный логин или пароль!");
+                    getView().unlockWindow();
                 }
             }
+
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
@@ -124,7 +134,6 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
 
     @Override
     public void checkPassword(String password) {
-        /* TODO проверка пароля */
     }
 
 }

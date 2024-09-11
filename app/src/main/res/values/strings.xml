@@ -15,4 +15,11 @@
     <string name="classNumberTextView">Пара X: XX:XX-XX:XX</string>
     <string name="classInfoTextView">..., \nПреподаватель ...</string>
     <string name="classroomTextView">XX-XXX</string>
+    <string name="edit_group">Изменить группу</string>
+    <string name="logout">Выйти из акккаунта</string>
+    <string name="edit_group_text">\t\tРедактировать учебную группу</string>
+    <string name="group">\tУчебная группа</string>
+    <string name="group_nospacing">Учебная группа</string>
+    <string name="close">Закрыть</string>
+    <string name="save_group">Сохранить</string>
 </resources>

@@ -11,10 +11,9 @@ public interface Timetable {
         void updatePressed(android.view.View view);
         void updateLastAuthorization();
 
-        void logoutPressed(android.view.View view);
+        void logoutPressed();
         void setText(String timetableText);
         Context getContext();
-        void setHeaderText(String text);
     }
 
     interface Presenter extends MVPPresenter<View> {
