@@ -132,8 +132,4 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
         editor.apply();
     }
 
-    @Override
-    public void checkPassword(String password) {
-    }
-
 }

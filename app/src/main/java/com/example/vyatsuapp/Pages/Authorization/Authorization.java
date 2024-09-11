@@ -39,7 +39,6 @@ public interface Authorization {
 
         void getAuthorization();
         void checkLogin(String login);
-        void checkPassword(String password);
 
         void applyHTMLResponse(String htmlContent);
 

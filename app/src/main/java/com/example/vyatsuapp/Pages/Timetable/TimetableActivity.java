@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -135,7 +137,10 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         String dateText = dateFormat.format(currentDate);
         DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String timeText = timeFormat.format(currentDate);
-        String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, new Locale("ru"));
+        String month = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, new Locale("ru"));
+        }
         String updated = "Обновлено: " + dateText + " " + month + " " + timeText;
         runOnUiThread(() -> lastUpdate.setText(updated));
         setText(presenter.getAllTimetable().toString());
@@ -236,9 +241,20 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         if (studyGroup == null || studyGroup.isEmpty()) {
             showEditGroupWindow();
         } else {
+            String fileName = studyGroup + "_timetable.pdf";
+            File pdfFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
+
+            if (!isNetworkAvailable()) {
+                if (pdfFile.exists()) {
+                    openPDF(fileName);
+                } else {
+                    Toast.makeText(this, "Нет подключения к интернету и отсутствует локальная копия PDF.", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
             new Thread(() -> {
                 String pdfUrl = GetActualTimetable();
-                System.out.println(pdfUrl);
                 if (pdfUrl != null) {
                     Retrofit retrofit = new Retrofit.Builder()
                             .baseUrl(pdfUrl + "/")
@@ -251,7 +267,6 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
                         Response<ResponseBody> response = downloadService.downloadFile(pdfUrl).execute();
 
                         if (response.isSuccessful()) {
-                            String fileName = studyGroup + "_timetable.pdf";
                             boolean writtenToDisk = writeResponseBodyToDisk(response.body(), fileName);
 
                             runOnUiThread(() -> {
@@ -274,6 +289,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
             }).start();
         }
     }
+
 
     public String GetActualTimetable() {
         try {
@@ -347,5 +363,12 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
 
         Intent chooser = Intent.createChooser(intent, "Открыть PDF");
         startActivity(chooser);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 }

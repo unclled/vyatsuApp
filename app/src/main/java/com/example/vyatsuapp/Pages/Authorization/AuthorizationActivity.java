@@ -67,7 +67,6 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
 
         if (editTextIsNull(getLoginField()) &&
                 editTextIsNull(getPasswordField())) {
-            String passwordText = getPassword();
 
             presenter.checkLogin(getLogin());
 

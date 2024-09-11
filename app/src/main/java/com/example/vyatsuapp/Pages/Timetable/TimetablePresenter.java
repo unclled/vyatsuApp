@@ -1,5 +1,6 @@
 package com.example.vyatsuapp.Pages.Timetable;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -44,6 +45,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         }); thread.start();
     }
 
+    @SuppressLint("SimpleDateFormat")
     @Override
     public StringBuilder parseTimetable(String timetable) {
         String day = getCurrentDay();
@@ -69,6 +71,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             }
 
             // Убедимся, что мы обрабатываем данные только будущих дней
+            assert currentDate != null;
             if (currentDate.before(actualDate)) {
                 StringBuilder dailyTimetable = new StringBuilder();
                 dailyTimetable.append(receivedDate).append("\n\n");
