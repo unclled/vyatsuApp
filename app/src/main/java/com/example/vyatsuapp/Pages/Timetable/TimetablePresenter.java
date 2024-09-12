@@ -1,24 +1,37 @@
 package com.example.vyatsuapp.Pages.Timetable;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 
+import com.example.vyatsuapp.BuildConfig;
 import com.example.vyatsuapp.Pages.Authorization.AuthorizationAPI;
 import com.example.vyatsuapp.Pages.PresenterBase;
+import com.example.vyatsuapp.R;
 import com.example.vyatsuapp.utils.AuthRequestBody;
 import com.example.vyatsuapp.utils.BasicAuthInterceptor;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,13 +49,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TimetablePresenter extends PresenterBase<Timetable.View> implements Timetable.Presenter {
     StringBuilder allTimetable;
+    private static final String CURRENT_VERSION = BuildConfig.VERSION_NAME;// текущая версия приложения
+    private static final String GITHUB_API_URL = "https://api.github.com/repos/unclled/vyatsuApp/releases/latest";
+
     @Override
     public void viewIsReady() {
         String timetable = getHTMLTimetable();
         Thread thread = new Thread(() -> {
             String allTimetable = parseTimetable(timetable).toString();
             getView().setText(allTimetable);
-        }); thread.start();
+        });
+        thread.start();
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -135,7 +152,8 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {}
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+            }
         });
     }
 
@@ -172,5 +190,93 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
 
     public StringBuilder getAllTimetable() {
         return allTimetable;
+    }
+
+    public void checkForUpdates() {
+        new CheckUpdateTask().execute();
+    }
+
+    private class CheckUpdateTask extends AsyncTask<Void, Void, String> {
+        @Override
+        protected String doInBackground(Void... voids) {
+            try {
+                URL url = new URL(GITHUB_API_URL);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("Accept", "application/vnd.github.v3+json");
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                return response.toString();
+            } catch (Exception e) {
+                Log.e("UpdateCheck", "Ошибка при проверке обновления", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String latestVersion = jsonObject.getString("tag_name"); // получение версии из GitHub
+
+                    if (isNewerVersion(CURRENT_VERSION, latestVersion)) {
+                        String downloadUrl = jsonObject.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
+
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getView().getContext(), R.style.CustomAlertDialogTheme);
+                        builder.setTitle(HtmlCompat.fromHtml("<font color='#000000'>Доступно обновление</font>", HtmlCompat.FROM_HTML_MODE_LEGACY))
+                                .setMessage(HtmlCompat.fromHtml("<font color='#000000'>Доступна новая версия приложения. Хотите обновить?</font>", HtmlCompat.FROM_HTML_MODE_LEGACY))
+                                .setPositiveButton("Обновить", (dialog, which) -> {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+                                    getView().getContext().startActivity(intent);
+                                })
+                                .setNegativeButton("Позже", null)
+                                .show();
+                    }
+                } catch (Exception e) {
+                    Log.e("UpdateCheck", "Ошибка при разборе данных обновления", e);
+                }
+            }
+        }
+
+        /**
+         * Compares two version strings.
+         *
+         * @param currentVersion The current version of the app.
+         * @param latestVersion  The latest version from GitHub.
+         * @return true if the latest version is newer than the current version, false otherwise.
+         */
+        private boolean isNewerVersion(String currentVersion, String latestVersion) {
+            // Remove the leading 'v' if present
+            currentVersion = currentVersion.startsWith("v") ? currentVersion.substring(1) : currentVersion;
+            latestVersion = latestVersion.startsWith("v") ? latestVersion.substring(1) : latestVersion;
+
+            // Split versions by dot (.)
+            String[] currentParts = currentVersion.split("\\.");
+            String[] latestParts = latestVersion.split("\\.");
+
+            int length = Math.max(currentParts.length, latestParts.length);
+
+            for (int i = 0; i < length; i++) {
+                int currentPart = i < currentParts.length ? Integer.parseInt(currentParts[i]) : 0;
+                int latestPart = i < latestParts.length ? Integer.parseInt(latestParts[i]) : 0;
+
+                if (currentPart < latestPart) {
+                    return true; // A newer version is available
+                } else if (currentPart > latestPart) {
+                    return false; // Current version is newer or the same
+                }
+            }
+
+            return false; // Versions are identical
+        }
     }
 }

@@ -24,5 +24,7 @@ public interface Timetable {
         String getCurrentDay();
 
         StringBuilder getAllTimetable();
+
+        void checkForUpdates();
     }
 }
