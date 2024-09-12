@@ -19,6 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,7 +67,8 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     private String studyGroup;
     private CircularProgressButton updateButton;
     private TextInputLayout studyGroupLayout;
-    AlertDialog ad;
+    private AlertDialog ad;
+    private ProgressBar progressBar;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -83,17 +85,13 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         lastUpdate = findViewById(R.id.lastUpdate);
         updateButton = findViewById(R.id.updateButton);
         studyGroupLayout = findViewById(R.id.studyGroup);
-
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        View my_custom_view = getLayoutInflater().inflate(R.layout.alert, null);
-        adb.setView(my_custom_view);
-        ad = adb.create();
-        ad.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        progressBar = findViewById(R.id.progressBar);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         runOnUiThread(() -> lastUpdate.setText(sharedPreferences.getString("LASTUPDATE", null)));
         recyclerView.setAdapter(adapter);
         studyGroup = sharedPreferences.getString("STUDY_GROUP", null);
+        updateLastAuthorization();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -109,7 +107,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     @Override
     public void setText(String timetableText) {
         runOnUiThread(() -> {
-            String[] days = timetableText.split("\n\n\n"); // Split days
+            String[] days = timetableText.split("\n\n\n");
             List<String> timetableDataList = new ArrayList<>();
             for (String day : days) {
                 if (!day.trim().isEmpty()) {
@@ -253,6 +251,11 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
                 return;
             }
 
+            runOnUiThread(() -> {
+                progressBar.setProgress(80);
+                Toast.makeText(this, "Скачивание началось...", Toast.LENGTH_SHORT).show();
+            });
+
             new Thread(() -> {
                 String pdfUrl = GetActualTimetable();
                 if (pdfUrl != null) {
@@ -277,14 +280,20 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
                                 }
                             });
                         } else {
-                            runOnUiThread(() -> Toast.makeText(TimetableActivity.this, "Не удалось загрузить PDF.", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(TimetableActivity.this, "Не удалось загрузить PDF.", Toast.LENGTH_SHORT).show();
+                            });
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        runOnUiThread(() -> Toast.makeText(TimetableActivity.this, "Ошибка при загрузке PDF.", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(TimetableActivity.this, "Ошибка при загрузке PDF.", Toast.LENGTH_SHORT).show();
+                        });
                     }
                 } else {
-                    runOnUiThread(() -> Toast.makeText(TimetableActivity.this, "Не удалось найти расписание для группы.", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> {
+                        Toast.makeText(TimetableActivity.this, "Не удалось найти расписание для группы.", Toast.LENGTH_SHORT).show();
+                    });
                 }
             }).start();
         }
@@ -326,15 +335,15 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
         try {
             File pdfFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
-            // Проверка, существует ли файл и удаление его, если это так
             if (pdfFile.exists()) {
                 pdfFile.delete();
             }
-            // Сохранение нового файла
+
             InputStream inputStream = body.byteStream();
             FileOutputStream outputStream = new FileOutputStream(pdfFile);
-
             byte[] fileReader = new byte[4096];
+            long fileSize = body.contentLength();
+            long fileSizeDownloaded = 0;
 
             while (true) {
                 int read = inputStream.read(fileReader);
@@ -342,8 +351,12 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
                     break;
                 }
                 outputStream.write(fileReader, 0, read);
-            }
+                fileSizeDownloaded += read;
 
+                // Обновление прогресса
+                final int progress = (int) (500 * fileSizeDownloaded / fileSize);
+                runOnUiThread(() -> progressBar.setProgress(progress));
+            }
             outputStream.flush();
             return true;
         } catch (IOException e) {
@@ -363,6 +376,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
 
         Intent chooser = Intent.createChooser(intent, "Открыть PDF");
         startActivity(chooser);
+        progressBar.setProgress(0);
     }
 
     private boolean isNetworkAvailable() {
