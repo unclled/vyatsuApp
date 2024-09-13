@@ -1,4 +1,4 @@
-package com.example.vyatsuapp.Pages;
+package com.example.vyatsuapp.Utils.MethodsForMVP;
 
 public interface MVPPresenter<V extends MVPView> { //интерфейс для всех презентеров
     void attachView(V MVPView); //передача View презентеру

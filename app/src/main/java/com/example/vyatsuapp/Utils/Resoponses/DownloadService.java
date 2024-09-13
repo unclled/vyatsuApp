@@ -1,4 +1,4 @@
-package com.example.vyatsuapp.Pages.Timetable;
+package com.example.vyatsuapp.Utils.Resoponses;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

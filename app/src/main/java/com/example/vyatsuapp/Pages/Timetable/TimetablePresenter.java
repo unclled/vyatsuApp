@@ -1,10 +1,12 @@
 package com.example.vyatsuapp.Pages.Timetable;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -12,11 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.core.text.HtmlCompat;
 
 import com.example.vyatsuapp.BuildConfig;
-import com.example.vyatsuapp.Pages.Authorization.AuthorizationAPI;
-import com.example.vyatsuapp.Pages.PresenterBase;
 import com.example.vyatsuapp.R;
-import com.example.vyatsuapp.utils.AuthRequestBody;
-import com.example.vyatsuapp.utils.BasicAuthInterceptor;
+import com.example.vyatsuapp.Utils.MethodsForMVP.PresenterBase;
+import com.example.vyatsuapp.Utils.Resoponses.AuthorizationAPI;
+import com.example.vyatsuapp.Utils.Resoponses.DownloadService;
+import com.example.vyatsuapp.Utils.ServerRequests.AuthRequestBody;
+import com.example.vyatsuapp.Utils.ServerRequests.BasicAuthInterceptor;
+import com.example.vyatsuapp.Utils.UtilsClass;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,14 +32,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -48,12 +57,16 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TimetablePresenter extends PresenterBase<Timetable.View> implements Timetable.Presenter {
-    StringBuilder allTimetable;
+    private StringBuilder allTimetable;
     private static final String CURRENT_VERSION = BuildConfig.VERSION_NAME;// текущая версия приложения
     private static final String GITHUB_API_URL = "https://api.github.com/repos/unclled/vyatsuApp/releases/latest";
+    private static final String VyatsuURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
+    private Context context;
+    private UtilsClass utils;
 
     @Override
     public void viewIsReady() {
+        utils = new UtilsClass();
         String timetable = getHTMLTimetable();
         Thread thread = new Thread(() -> {
             String allTimetable = parseTimetable(timetable).toString();
@@ -159,10 +172,153 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
 
     @Override
     public void getLoginAndPassword() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-        String login = sharedPreferences.getString("UserLogin", null);
-        String password = sharedPreferences.getString("UserPassword", null);
-        getAuthorization(login, password);
+        List<String> keys = new ArrayList<>();
+        keys.add("UserLogin");
+        keys.add("UserPassword");
+        List<String> values = utils.loadFromPreferences(keys, context);
+        getAuthorization(values.get(0), values.get(1));
+    }
+
+    @Override
+    public String getActualTimetable(String studyGroup) {
+        try {
+            Document document = Jsoup.connect(VyatsuURL)
+                    .maxBodySize(0)
+                    .get();
+
+            Elements groupElements = document.select("div.grpPeriod");
+
+            for (Element groupElement : groupElements) {
+                String groupName = groupElement.text().trim();
+
+                if (groupName.contains(studyGroup)) {
+                    Element listPeriodElement = groupElement.nextElementSibling();
+
+                    if (listPeriodElement != null) {
+                        Elements pdfLinks = listPeriodElement.select("a[href]");
+                        if (!pdfLinks.isEmpty()) {
+                            String pdfUrl = pdfLinks.first().attr("href");
+
+                            return "https://www.vyatsu.ru" + pdfUrl;
+                        }
+                    }
+                    break;
+                }
+            }
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public void downloadPDF(String studyGroup) {
+        if (studyGroup == null || studyGroup.isEmpty()) {
+            getView().showEditGroupWindow();
+            return;
+        }
+
+        String fileName = studyGroup + "_расписание.pdf";
+        File pdfFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
+
+        if (getView().isNetworkAvailable()) {
+            if (pdfFile.exists()) {
+                getView().openPDF(fileName);
+            } else {
+                utils.showToastLong("Нет подключения к интернету и отсутствует локальная копия PDF!", context);
+            }
+            return;
+        }
+
+        utils.showToastShort("Скачивание началось...", context);
+        new Thread(() -> {
+            String pdfUrl = getActualTimetable(studyGroup);
+            if (pdfUrl != null) {
+                try {
+                    Response<ResponseBody> response = downloadFile(pdfUrl);
+                    if (response.isSuccessful()) {
+                        boolean writtenToDisk = writeResponseBodyToDisk(response.body(), fileName);
+                        if (writtenToDisk) {
+                            getView().openPDF(fileName);
+                        } else {
+                            utils.showToastShort("Ошибка при сохранении PDF", context);
+                        }
+                    } else {
+                        utils.showToastShort("Не удалось загрузить PDF", context);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    utils.showToastShort("Ошибка при загрузке PDF", context);
+                }
+            } else {
+                utils.showToastShort("Не удалось найти расписание для группы", context);
+            }
+        }).start();
+    }
+
+    private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
+        try {
+            File pdfFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
+            if (pdfFile.exists()) {
+                pdfFile.delete();
+            }
+            InputStream inputStream = body.byteStream();
+            FileOutputStream outputStream = new FileOutputStream(pdfFile);
+            byte[] fileReader = new byte[4096];
+            long fileSize = body.contentLength();
+            long fileSizeDownloaded = 0;
+
+
+            while (true) {
+                int read = inputStream.read(fileReader);
+                if (read == -1) {
+                    break;
+                }
+                outputStream.write(fileReader, 0, read);
+                fileSizeDownloaded += read;
+
+                int progress = (int) (100 * fileSizeDownloaded / fileSize);
+
+                getView().animateDownload(progress);
+            }
+
+            outputStream.flush();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private Response<ResponseBody> downloadFile(String pdfUrl) throws IOException {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(pdfUrl + "/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        DownloadService downloadService = retrofit.create(DownloadService.class);
+        return downloadService.downloadFile(pdfUrl).execute();
+    }
+
+    @Override
+    public void logout() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove("UserLogin");
+        editor.remove("UserPassword");
+        editor.remove("hasStudentInfo");
+        editor.apply();
+    }
+
+    @Override
+    public void saveGroupToPreferences(String group) {
+        utils.toMapAndSaveSP("STUDY_GROUP", group, context);
     }
 
     @Override
@@ -177,15 +333,14 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
 
     @Override
     public String getHTMLTimetable() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-        return sharedPreferences.getString("HTMLResponse", null);
+        List<String> key = new ArrayList<>();
+        key.add("HTMLResponse");
+        List<String> value = utils.loadFromPreferences(key, context);
+        return value.isEmpty() ? null : value.get(0);
     }
 
     public void applyHTMLResponse(String htmlContent) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("HTMLResponse", htmlContent);
-        editor.apply();
+        utils.toMapAndSaveSP("HTMLResponse", htmlContent, context);
     }
 
     public StringBuilder getAllTimetable() {
@@ -231,12 +386,12 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                     if (isNewerVersion(CURRENT_VERSION, latestVersion)) {
                         String downloadUrl = jsonObject.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
 
-                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getView().getContext(), R.style.CustomAlertDialogTheme);
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context, R.style.CustomAlertDialogTheme);
                         builder.setTitle(HtmlCompat.fromHtml("<font color='#000000'>Доступно обновление</font>", HtmlCompat.FROM_HTML_MODE_LEGACY))
                                 .setMessage(HtmlCompat.fromHtml("<font color='#000000'>Доступна новая версия приложения. Хотите обновить?</font>", HtmlCompat.FROM_HTML_MODE_LEGACY))
                                 .setPositiveButton("Обновить", (dialog, which) -> {
                                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
-                                    getView().getContext().startActivity(intent);
+                                    context.startActivity(intent);
                                 })
                                 .setNegativeButton("Позже", null)
                                 .show();

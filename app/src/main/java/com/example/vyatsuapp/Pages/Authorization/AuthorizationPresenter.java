@@ -1,18 +1,19 @@
 package com.example.vyatsuapp.Pages.Authorization;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import androidx.annotation.NonNull;
 
-import com.example.vyatsuapp.Pages.PresenterBase;
-import com.example.vyatsuapp.utils.AuthRequestBody;
-import com.example.vyatsuapp.utils.BasicAuthInterceptor;
+import com.example.vyatsuapp.Utils.MethodsForMVP.PresenterBase;
+import com.example.vyatsuapp.Utils.Resoponses.AuthorizationAPI;
+import com.example.vyatsuapp.Utils.ServerRequests.AuthRequestBody;
+import com.example.vyatsuapp.Utils.ServerRequests.BasicAuthInterceptor;
+import com.example.vyatsuapp.Utils.UtilsClass;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AuthorizationPresenter extends PresenterBase<Authorization.View> implements Authorization.Presenter {
     private String loginText;
+    private UtilsClass utils = new UtilsClass();
 
     @Override
     public void viewIsReady() {
@@ -75,7 +77,7 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
                                 getView().unlockWindow();
                                 getView().toNextPage(htmlContent);
                             } else {
-                                getView().tryAgain("Некорректный пароль!");
+                                getView().tryAgain("Некорректный логин или пароль!");
                                 getView().unlockWindow();
                             }
                         } catch (IOException e) {
@@ -97,7 +99,7 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
                 if (t instanceof SocketTimeoutException) {
                     getView().tryAgain("Время ожидания истекло, попробуйте еще раз!");
                 } else {
-                    getView().tryAgain("Ошибка при выполнении запроса_2!");
+                    getView().tryAgain("Ошибка при выполнении запроса!");
                 }
             }
         });
@@ -117,19 +119,15 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
 
     @Override
     public void applyHTMLResponse(String htmlContent) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("HTMLResponse", htmlContent);
-        editor.apply();
+        utils.toMapAndSaveSP("HTMLResponse", htmlContent, getView().getContext());
     }
 
     @Override
     public void saveUserInfo() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getView().getContext());
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("UserLogin", getView().getLogin());
-        editor.putString("UserPassword", getView().getPassword());
-        editor.apply();
+        Map<String, String> values = new HashMap<>();
+        values.put("UserLogin", getView().getLogin());
+        values.put("UserPassword", getView().getPassword());
+        utils.saveToPreferences(values, getView().getContext());
     }
 
 }

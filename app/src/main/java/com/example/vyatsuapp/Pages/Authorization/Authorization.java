@@ -2,19 +2,22 @@ package com.example.vyatsuapp.Pages.Authorization;
 
 import android.content.Context;
 
-import com.example.vyatsuapp.Pages.MVPPresenter;
-import com.example.vyatsuapp.Pages.MVPView;
+import com.example.vyatsuapp.Utils.MethodsForMVP.MVPPresenter;
+import com.example.vyatsuapp.Utils.MethodsForMVP.MVPView;
 import com.google.android.material.textfield.TextInputLayout;
 
 public interface Authorization {
 
     interface View extends MVPView {
         Context getContext();
+
         String getLogin();
+
         String getPassword();
 
         //получение самих полей для проверки на пустоту
         TextInputLayout getLoginField();
+
         TextInputLayout getPasswordField();
 
         void loginPressed(android.view.View view);
@@ -32,12 +35,14 @@ public interface Authorization {
 
         //блок/анлок нажатий
         void blockWindow();
+
         void unlockWindow();
     }
 
     interface Presenter extends MVPPresenter<View> {
 
         void getAuthorization();
+
         void checkLogin(String login);
 
         void applyHTMLResponse(String htmlContent);

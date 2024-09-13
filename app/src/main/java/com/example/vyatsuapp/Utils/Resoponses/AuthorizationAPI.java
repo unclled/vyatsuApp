@@ -1,6 +1,6 @@
-package com.example.vyatsuapp.Pages.Authorization;
+package com.example.vyatsuapp.Utils.Resoponses;
 
-import com.example.vyatsuapp.utils.AuthRequestBody;
+import com.example.vyatsuapp.Utils.ServerRequests.AuthRequestBody;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

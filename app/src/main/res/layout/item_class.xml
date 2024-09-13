@@ -49,9 +49,9 @@
 
     <TextView
         android:id="@+id/classroomInfo"
-        android:layout_width="66dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="66dp"
+        android:minWidth="70dp"
         android:fontFamily="@font/montserrat_medium"
         android:textAlignment="center"
         android:gravity="center"

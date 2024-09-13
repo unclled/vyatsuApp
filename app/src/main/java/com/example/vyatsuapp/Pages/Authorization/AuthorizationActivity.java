@@ -17,15 +17,17 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vyatsuapp.Pages.Timetable.TimetableActivity;
 import com.example.vyatsuapp.R;
+import com.example.vyatsuapp.Utils.UtilsClass;
 import com.github.leandroborgesferreira.loadingbutton.customViews.CircularProgressButton;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Objects;
 
 public class AuthorizationActivity extends AppCompatActivity implements Authorization.View {
 
@@ -34,15 +36,17 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
     public TextInputLayout loginField;
     public TextInputLayout passwordField;
 
-    Bitmap bitmap;
+    private Bitmap bitmap;
 
-    Authorization.Presenter presenter;
+    private Authorization.Presenter presenter;
+    private UtilsClass utils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authorization_activity);
         presenter = new AuthorizationPresenter();
+        utils = new UtilsClass();
 
         loginField = findViewById(R.id.LoginField);
         passwordField = findViewById(R.id.PasswordField);
@@ -63,6 +67,8 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
 
     @Override
     public void loginPressed(View view) {
+        passwordField.clearFocus();
+        loginField.clearFocus();
         if (!isOnline()) tryAgain("Отсутствует подключение к интернету!");
 
         if (editTextIsNull(getLoginField()) &&
@@ -80,11 +86,7 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
         LoginButton.revertAnimation();
         Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
         LoginButton.startAnimation(shake);
-        Toast toast = Toast.makeText(
-                this,
-                text,
-                Toast.LENGTH_LONG);
-        toast.show();
+        utils.showToastLong(text, this);
     }
 
     @Override
@@ -192,12 +194,12 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
 
     @Override
     public String getLogin() {
-        return loginField.getEditText().getText().toString();
+        return Objects.requireNonNull(loginField.getEditText()).getText().toString();
     }
 
     @Override
     public String getPassword() {
-        return passwordField.getEditText().getText().toString();
+        return Objects.requireNonNull(passwordField.getEditText()).getText().toString();
     }
 
     @Override

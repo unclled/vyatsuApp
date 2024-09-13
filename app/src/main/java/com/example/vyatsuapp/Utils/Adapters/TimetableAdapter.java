@@ -1,4 +1,4 @@
-package com.example.vyatsuapp.Pages.Timetable;
+package com.example.vyatsuapp.Utils.Adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;

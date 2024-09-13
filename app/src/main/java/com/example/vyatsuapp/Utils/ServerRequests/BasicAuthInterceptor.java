@@ -1,4 +1,4 @@
-package com.example.vyatsuapp.utils;
+package com.example.vyatsuapp.Utils.ServerRequests;
 
 import org.jetbrains.annotations.NotNull;
 
