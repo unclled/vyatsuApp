@@ -21,7 +21,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -59,8 +58,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
     private TextInputLayout studyGroupLayout;
     private AlertDialog ad;
     private ProgressBar progressBar;
-    private UtilsClass utils;
-    private RelativeLayout updateBar;
+    private final UtilsClass utils = new UtilsClass();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -75,7 +73,6 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         studyGroupLayout = findViewById(R.id.studyGroup);
         progressBar = findViewById(R.id.progressBar);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        updateBar = findViewById(R.id.updateBar);
         setSupportActionBar(toolbar);
 
         prepareStep();
@@ -87,17 +84,18 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         presenter.setContext(this);
         presenter.viewIsReady();
 
-        utils = new UtilsClass();
-
-        List<String> key = new ArrayList<>();
-        key.add("STUDY_GROUP");
-        List<String> value = utils.loadFromPreferences(key, this);
+        List<String> keys = new ArrayList<>();
+        keys.add("STUDY_GROUP");
+        keys.add("LAST_UPDATE");
+        List<String> value = utils.loadFromPreferences(keys, this);
         studyGroup = value.isEmpty() ? null : value.get(0);
+        if (value.get(1) == null) {
+            updateLastAuthorization();
+        } else {
+            lastUpdate.setText(value.get(1));
+        }
 
         recyclerView.setAdapter(adapter);
-        if (lastUpdate.getText().equals("Обновлено:")) {
-            updateLastAuthorization();
-        }
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         Window window = getWindow();
@@ -153,7 +151,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
             setText(presenter.getAllTimetable().toString());
         });
 
-        utils.toMapAndSaveSP("LASTUPDATE", updated, this);
+        utils.toMapAndSaveSP("LAST_UPDATE", updated, this);
     }
 
     @Override

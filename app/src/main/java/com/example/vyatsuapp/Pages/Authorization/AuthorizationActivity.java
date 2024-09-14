@@ -39,14 +39,13 @@ public class AuthorizationActivity extends AppCompatActivity implements Authoriz
     private Bitmap bitmap;
 
     private Authorization.Presenter presenter;
-    private UtilsClass utils;
+    private final UtilsClass utils = new UtilsClass();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.authorization_activity);
         presenter = new AuthorizationPresenter();
-        utils = new UtilsClass();
 
         loginField = findViewById(R.id.LoginField);
         passwordField = findViewById(R.id.PasswordField);

@@ -62,11 +62,11 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     private static final String GITHUB_API_URL = "https://api.github.com/repos/unclled/vyatsuApp/releases/latest";
     private static final String VyatsuURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
     private Context context;
-    private UtilsClass utils;
+    private final UtilsClass utils = new UtilsClass();
+    ;
 
     @Override
     public void viewIsReady() {
-        utils = new UtilsClass();
         String timetable = getHTMLTimetable();
         Thread thread = new Thread(() -> {
             String allTimetable = parseTimetable(timetable).toString();
@@ -173,8 +173,8 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     @Override
     public void getLoginAndPassword() {
         List<String> keys = new ArrayList<>();
-        keys.add("UserLogin");
-        keys.add("UserPassword");
+        keys.add("USER_LOGIN");
+        keys.add("USER_PASSWORD");
         List<String> values = utils.loadFromPreferences(keys, context);
         getAuthorization(values.get(0), values.get(1));
     }
@@ -264,31 +264,43 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
 
     private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
         try {
-            File pdfFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), fileName);
-            if (pdfFile.exists()) {
-                pdfFile.delete();
-            }
-            InputStream inputStream = body.byteStream();
-            FileOutputStream outputStream = new FileOutputStream(pdfFile);
-            byte[] fileReader = new byte[4096];
-            long fileSize = body.contentLength();
-            long fileSizeDownloaded = 0;
+            File downloadDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
 
-
-            while (true) {
-                int read = inputStream.read(fileReader);
-                if (read == -1) {
-                    break;
+            if (downloadDir != null) {
+                File[] files = downloadDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (!file.delete()) {
+                            Log.e("File Deletion", "Failed to delete file: " + file.getName());
+                        }
+                    }
                 }
-                outputStream.write(fileReader, 0, read);
-                fileSizeDownloaded += read;
-
-                int progress = (int) (100 * fileSizeDownloaded / fileSize);
-
-                getView().animateDownload(progress);
             }
 
-            outputStream.flush();
+            File pdfFile = new File(downloadDir, fileName);
+
+            InputStream inputStream = body.byteStream();
+            try (FileOutputStream outputStream = new FileOutputStream(pdfFile)) {
+                byte[] fileReader = new byte[4096];
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+                    if (read == -1) {
+                        break;
+                    }
+                    outputStream.write(fileReader, 0, read);
+                    fileSizeDownloaded += read;
+
+                    // Обновление прогресса загрузки
+                    int progress = (int) (100 * fileSizeDownloaded / fileSize);
+                    getView().animateDownload(progress);
+                }
+
+                outputStream.flush();
+            }
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -310,9 +322,10 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     public void logout() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove("UserLogin");
-        editor.remove("UserPassword");
-        editor.remove("hasStudentInfo");
+        editor.remove("USER_LOGIN");
+        editor.remove("USER_PASSWORD");
+        editor.remove("HAS_STUDENT_INFO");
+        editor.remove("LAST_UPDATE");
         editor.apply();
     }
 
@@ -334,13 +347,13 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     @Override
     public String getHTMLTimetable() {
         List<String> key = new ArrayList<>();
-        key.add("HTMLResponse");
+        key.add("HTML_RESPONSE");
         List<String> value = utils.loadFromPreferences(key, context);
         return value.isEmpty() ? null : value.get(0);
     }
 
     public void applyHTMLResponse(String htmlContent) {
-        utils.toMapAndSaveSP("HTMLResponse", htmlContent, context);
+        utils.toMapAndSaveSP("HTML_RESPONSE", htmlContent, context);
     }
 
     public StringBuilder getAllTimetable() {

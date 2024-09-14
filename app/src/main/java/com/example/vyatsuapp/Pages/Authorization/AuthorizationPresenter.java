@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AuthorizationPresenter extends PresenterBase<Authorization.View> implements Authorization.Presenter {
     private String loginText;
-    private UtilsClass utils = new UtilsClass();
+    private final UtilsClass utils = new UtilsClass();
 
     @Override
     public void viewIsReady() {
@@ -119,14 +119,14 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
 
     @Override
     public void applyHTMLResponse(String htmlContent) {
-        utils.toMapAndSaveSP("HTMLResponse", htmlContent, getView().getContext());
+        utils.toMapAndSaveSP("HTML_RESPONSE", htmlContent, getView().getContext());
     }
 
     @Override
     public void saveUserInfo() {
         Map<String, String> values = new HashMap<>();
-        values.put("UserLogin", getView().getLogin());
-        values.put("UserPassword", getView().getPassword());
+        values.put("USER_LOGIN", getView().getLogin());
+        values.put("USER_PASSWORD", getView().getPassword());
         utils.saveToPreferences(values, getView().getContext());
     }
 
