@@ -1,5 +1,4 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/timetableActivity"
     android:layout_width="match_parent"
@@ -14,17 +13,17 @@
         android:layout_height="5dp"
         android:layout_alignParentTop="true"
         android:indeterminate="false"
-        android:progress="0"
         android:max="100"
+        android:progress="0"
         android:progressDrawable="@drawable/green_pb" />
 
     <LinearLayout
         android:id="@+id/upperBG"
         android:layout_width="match_parent"
         android:layout_height="76dp"
+        android:layout_below="@id/progressBar"
         android:background="@color/brightBlue"
-        android:orientation="vertical"
-        android:layout_below="@id/progressBar">
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -34,8 +33,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="31dp"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="31dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:text="@string/Timetable"
                 android:textColor="@color/white"
@@ -46,9 +45,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="34dp"
-                android:orientation="horizontal"
+                android:layout_marginEnd="16dp"
                 android:gravity="center"
-                android:layout_marginEnd="16dp">
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/downloadPDF"
@@ -84,33 +83,35 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/updateBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/upperBG"
+        android:background="@drawable/update_bar">
+
+        <TextView
+            android:id="@+id/lastUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="@font/montserrat_bold"
+            android:singleLine="true"
+            android:text="@string/lastUpdateText"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/Timetable"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/upperBG">
-
-        <RelativeLayout
-            android:id="@+id/updateBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="6dp">
-
-            <TextView
-                android:id="@+id/lastUpdate"
-                android:layout_width="wrap_content"
-                android:layout_height="26dp"
-                android:fontFamily="@font/montserrat_bold"
-                android:singleLine="true"
-                android:text="@string/lastUpdateText"
-                android:textSize="18sp" />
-        </RelativeLayout>
+        android:layout_below="@+id/updateBar">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/updateBar"
             android:layout_alignParentBottom="true"
             android:orientation="vertical" />
     </RelativeLayout>

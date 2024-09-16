@@ -125,9 +125,13 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
 
     @Override
     public void updatePressed(View view) {
-        Animation rotate = AnimationUtils.loadAnimation(this, R.anim.update_rotate);
-        updateButton.startAnimation(rotate);
-        presenter.getLoginAndPassword();
+        if (!isNetworkAvailable()) {
+            Animation rotate = AnimationUtils.loadAnimation(this, R.anim.update_rotate);
+            updateButton.startAnimation(rotate);
+            presenter.getLoginAndPassword();
+        } else {
+            utils.showToastShort("Отсутствует подключение к интернету!", this);
+        }
     }
 
     @Override
