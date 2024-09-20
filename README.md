@@ -17,8 +17,8 @@
 
 # **Скриншоты**
 
-<img src="" border="0">
-<img src="" border="0">
+<img src="https://raw.githubusercontent.com/unclled/vyatsuApp/main/images/First.png" border="0">
+<img src="https://raw.githubusercontent.com/unclled/vyatsuApp/main/images/Second.png" border="0">
 
 # **Требования**
 
