@@ -15,7 +15,26 @@
         <item name="colorPrimary">@color/brightBlue</item>
         <item name="colorPrimaryDark">@color/brightBlue</item>
         <item name="android:textColorPrimary">#CE000000</item>
+        <item name="android:textColorSecondary">@color/black</item>
         <item name="android:textColor">#CE000000</item>
+        <item name="hintTextColor">@color/brightText</item>
         <item name="colorOnSecondary">@color/brightBG</item>
+        <item name="colorOnPrimary">@color/brightBG</item>
     </style>
 </resources>
+
+    <!--    <style name="Theme.VyatsuApp" parent="Base.Theme.VyatsuApp" > НОЧНАЯ ТЕМА-->
+    <!--        <item name="android:windowTranslucentNavigation">true</item>-->
+    <!--        <item name="android:windowTranslucentStatus">true</item>-->
+    <!--        <item name="android:windowDrawsSystemBarBackgrounds">true</item>-->
+    <!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+    <!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
+    <!--        <item name="colorPrimary">@color/brightBlue</item>-->
+    <!--        <item name="colorOnPrimary">@color/brightBG</item>-->
+    <!--        <item name="colorPrimaryDark">@color/darkBlue</item>-->
+    <!--        <item name="android:textColorPrimary">@color/brightBG</item>-->
+    <!--        <item name="android:textColorSecondary">@color/brightBG</item>-->
+    <!--        <item name="hintTextColor">@color/brightBG</item>-->
+    <!--        <item name="android:textColor">@color/brightBG</item>-->
+    <!--        <item name="colorOnSecondary">@color/darkBG</item>-->
+    <!--    </style>-->

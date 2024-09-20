@@ -11,7 +11,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "v1.0.5"
+        versionName = "v1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,6 +55,6 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation ("com.squareup.retrofit2:converter-scalars:2.9.0")
-
+    implementation ("com.github.Mahfa:DayNightSwitch:1.5")
 }
 

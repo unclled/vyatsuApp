@@ -58,19 +58,25 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TimetablePresenter extends PresenterBase<Timetable.View> implements Timetable.Presenter {
     private StringBuilder allTimetable;
-    private static final String CURRENT_VERSION = BuildConfig.VERSION_NAME;// текущая версия приложения
+    private static final String CURRENT_VERSION = BuildConfig.VERSION_NAME;
     private static final String GITHUB_API_URL = "https://api.github.com/repos/unclled/vyatsuApp/releases/latest";
     private static final String VyatsuURL = "https://www.vyatsu.ru/studentu-1/spravochnaya-informatsiya/raspisanie-zanyatiy-dlya-studentov.html";
+
     private Context context;
+
+    private boolean alreadyParsed = false;
+
     private final UtilsClass utils = new UtilsClass();
-    ;
 
     @Override
     public void viewIsReady() {
         String timetable = getHTMLTimetable();
         Thread thread = new Thread(() -> {
-            String allTimetable = parseTimetable(timetable).toString();
-            getView().setText(allTimetable);
+            if (!alreadyParsed) {
+                String allTimetable = parseTimetable(timetable).toString();
+                getView().setText(allTimetable);
+            }
+            getView().setText(timetable);
         });
         thread.start();
     }
@@ -119,6 +125,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                 allTimetable.append(dailyTimetable).append("\n\n\n");
             }
         }
+        utils.toMapAndSaveSP("PARSED_TIMETABLE", allTimetable.toString(), context);
         return allTimetable;
     }
 
@@ -154,6 +161,7 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
                         try {
                             BufferedSource source = responseBody.source();
                             String htmlContent = source.readUtf8();
+                            htmlContent = htmlContent.substring(29000, htmlContent.length() - 80000);
                             applyHTMLResponse(htmlContent);
                             getView().setText(parseTimetable(htmlContent).toString());
                             getView().updateLastAuthorization();
@@ -210,11 +218,6 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public void setContext(Context context) {
-        this.context = context;
     }
 
     @Override
@@ -334,22 +337,28 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         utils.toMapAndSaveSP("STUDY_GROUP", group, context);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public String getCurrentDay() {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DATE) - 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.get(Calendar.MONTH) + 1;
-        return day + "."
-                + month + "."
-                + calendar.get(Calendar.YEAR);
+        int year = calendar.get(Calendar.YEAR);
+
+        return String.format("%02d.%02d.%d", day, month, year);
     }
 
     @Override
     public String getHTMLTimetable() {
-        List<String> key = new ArrayList<>();
-        key.add("HTML_RESPONSE");
-        List<String> value = utils.loadFromPreferences(key, context);
-        return value.isEmpty() ? null : value.get(0);
+        List<String> keys = new ArrayList<>();
+        keys.add("PARSED_TIMETABLE");
+        keys.add("HTML_RESPONSE");
+        List<String> value = utils.loadFromPreferences(keys, context);
+        if (value.get(0) != null) {
+            alreadyParsed = true;
+            allTimetable = new StringBuilder(value.get(0));
+            return allTimetable.toString();
+        } else return value.get(1);
     }
 
     public void applyHTMLResponse(String htmlContent) {
@@ -364,6 +373,12 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
         new CheckUpdateTask().execute();
     }
 
+    @Override
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    @SuppressLint("StaticFieldLeak")
     private class CheckUpdateTask extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... voids) {

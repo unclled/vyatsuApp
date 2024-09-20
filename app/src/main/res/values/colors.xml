@@ -9,5 +9,5 @@
     <color name="grey">#808080</color>
     <color name="brightGrey">#919191</color>
     <color name="semiTransparentBlack">#80000000</color>
-
+    <color name="darkBG">#202020</color>
 </resources>

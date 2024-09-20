@@ -72,6 +72,7 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
                             String htmlContent = source.readUtf8();
 
                             if (htmlContent.contains("Выйти")) {
+                                htmlContent = htmlContent.substring(29000, htmlContent.length() - 80000);
                                 applyHTMLResponse(htmlContent);
                                 saveUserInfo();
                                 getView().unlockWindow();

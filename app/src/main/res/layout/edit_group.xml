@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="400dp"
     android:layout_height="220dp"
-    android:layout_gravity="center"
-    android:background="@android:color/transparent">
+    android:layout_gravity="center">
 
     <RelativeLayout
         android:id="@+id/editGroupWindow"
@@ -37,16 +36,16 @@
                 android:layout_marginEnd="8dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:hint="@string/group_nospacing"
-                android:textColorHint="@color/brightText"
-                app:boxStrokeColor="@color/darkBlue"
-                app:cursorColor="@color/darkBlue"
+                android:textColorHint="?attr/hintTextColor"
+                app:boxStrokeColor="@color/brightBlue"
+                app:cursorColor="@color/brightBlue"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true"
                 app:helperText="Формат: ПОДб-11/ПОДб-1101/ПОДб-1101-53-00"
                 app:helperTextEnabled="true"
-                app:helperTextTextColor="@color/brightText"
-                app:hintTextColor="@color/darkBlue"
-                app:startIconTint="@color/darkBlue">
+                app:helperTextTextColor="?attr/hintTextColor"
+                app:hintTextColor="?attr/hintTextColor"
+                app:startIconTint="@color/brightBlue">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/textInputEditText"
