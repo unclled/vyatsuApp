@@ -40,7 +40,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<TimetableAdapter.Time
             String schedule = parts[1];
             String[] classes = schedule.split("\n\n");
 
-            ClassesAdapter classesAdapter = new ClassesAdapter(Arrays.asList(classes), parts[0]);
+            ClassesAdapter classesAdapter = new ClassesAdapter(Arrays.asList(classes));
             holder.classesRecyclerView.setAdapter(classesAdapter);
         }
     }
