@@ -79,6 +79,7 @@ public class ClassesAdapter extends RecyclerView.Adapter<ClassesAdapter.ClassVie
         holder.classInfoTextView.setText(formattedClassDetails2.trim().replace("\n ", "\n"));
     }
 
+
     @Override
     public int getItemCount() {
         return classes.size();

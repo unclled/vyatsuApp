@@ -57,7 +57,7 @@ public class AuthorizationPresenter extends PresenterBase<Authorization.View> im
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
-        AuthRequestBody body = new AuthRequestBody(loginText, passwordText);
+        AuthRequestBody body = new AuthRequestBody();
         AuthorizationAPI api = retrofit.create(AuthorizationAPI.class);
 
         Call<ResponseBody> call = api.authUser(body);

@@ -50,19 +50,14 @@ import java.util.Objects;
 
 public class TimetableActivity extends AppCompatActivity implements Timetable.View {
     private TextView lastUpdate;
-    private TextInputLayout studyGroupLayout;
-
     private RecyclerView recyclerView;
-
     private TimetableAdapter adapter;
     private Timetable.Presenter presenter;
-    private AlertDialog ad;
-
     private String studyGroup;
-
     private CircularProgressButton updateButton;
+    private TextInputLayout studyGroupLayout;
+    private AlertDialog ad;
     private ProgressBar progressBar;
-
     private final UtilsClass utils = new UtilsClass();
 
     @SuppressLint("MissingInflatedId")
@@ -78,7 +73,6 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         studyGroupLayout = findViewById(R.id.studyGroup);
         progressBar = findViewById(R.id.progressBar);
         Toolbar toolbar = findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
 
         prepareStep();
@@ -105,14 +99,11 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         Window window = getWindow();
-        window.setFlags(
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        window.getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         presenter.checkForUpdates();
     }
@@ -156,10 +147,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         String month = null;
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            month = calendar.getDisplayName(
-                    Calendar.MONTH,
-                    Calendar.LONG_FORMAT,
-                    new Locale("ru"));
+            month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_FORMAT, new Locale("ru"));
         }
         String updated = "Обновлено: " + dateText + " " + month + " " + timeText;
         runOnUiThread(() -> {
@@ -287,14 +275,6 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo == null || !networkInfo.isConnected();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (ad != null && ad.isShowing()) {
-            ad.dismiss();
-        }
     }
 
     @SuppressLint("MissingSuperCall")
