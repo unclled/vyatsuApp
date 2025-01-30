@@ -23,4 +23,5 @@
     <string name="hideClassAfterItEnds">Убирать пары сразу после их окончания</string>
     <string name="settings">Настройки</string>
     <string name="socials">Контакты</string>
+    <string name="noDataText">Информации о расписании нет</string>
 </resources>

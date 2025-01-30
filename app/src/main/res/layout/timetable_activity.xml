@@ -108,6 +108,17 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/updateBar">
 
+        <TextView
+            android:id="@+id/noDataText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="@font/montserrat_bold"
+            android:text="@string/noDataText"
+            android:textColor="@color/brightText"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"

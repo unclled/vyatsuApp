@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -184,31 +185,38 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             Document document = Jsoup.connect(VyatsuURL)
                     .maxBodySize(0)
                     .get();
+            Elements groupElements;
 
-            Elements groupElements = document.select("div.grpPeriod");
+            Elements yourGroupPeriods = new Elements();
+            Calendar calendar = Calendar.getInstance();
+            int month = calendar.get(Calendar.MONTH) + 1;
+
+            int periodIndex = (month <= 7) ? 1 : 0;
+
+            groupElements = document.select("div.grpPeriod");
 
             for (Element groupElement : groupElements) {
                 String groupName = groupElement.text().trim();
 
                 if (groupName.contains(studyGroup)) {
-                    Element listPeriodElement = groupElement.nextElementSibling();
-
-                    if (listPeriodElement != null) {
-                        Elements pdfLinks = listPeriodElement.select("a[href]");
-                        if (!pdfLinks.isEmpty()) {
-                            String pdfUrl = pdfLinks.first().attr("href");
-
-                            return "https://www.vyatsu.ru" + pdfUrl;
-                        }
-                    }
-                    break;
+                    yourGroupPeriods.add(Objects.requireNonNull(groupElement.nextElementSibling()));
                 }
             }
-            return null;
+
+            if (!yourGroupPeriods.isEmpty()) {
+                Element currentPeriod = yourGroupPeriods.get(periodIndex);
+                Elements pdfLinks = currentPeriod.select("a[href]");
+                if (!pdfLinks.isEmpty()) {
+                    String pdfUrl = Objects.requireNonNull(pdfLinks.first()).attr("href");
+
+                    return "https://www.vyatsu.ru" + pdfUrl;
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+        return null;
     }
 
     @Override

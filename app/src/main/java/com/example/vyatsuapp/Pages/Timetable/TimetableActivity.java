@@ -50,6 +50,7 @@ import java.util.Objects;
 
 public class TimetableActivity extends AppCompatActivity implements Timetable.View {
     private TextView lastUpdate;
+    private TextView noDataText;
     private RecyclerView recyclerView;
     private TimetableAdapter adapter;
     private Timetable.Presenter presenter;
@@ -67,6 +68,7 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
         setContentView(R.layout.timetable_activity);
 
         recyclerView = findViewById(R.id.recyclerView);
+        noDataText = findViewById(R.id.noDataText);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         lastUpdate = findViewById(R.id.lastUpdate);
         updateButton = findViewById(R.id.updateButton);
@@ -120,6 +122,11 @@ public class TimetableActivity extends AppCompatActivity implements Timetable.Vi
             }
             adapter = new TimetableAdapter(timetableDataList);
             recyclerView.setAdapter(adapter);
+            if (adapter.getItemCount() == 0) {
+                noDataText.setVisibility(View.VISIBLE);
+            } else {
+                noDataText.setVisibility(View.GONE);
+            }
         });
     }
 
