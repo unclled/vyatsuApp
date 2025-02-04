@@ -39,12 +39,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -78,10 +80,15 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     @SuppressLint("SimpleDateFormat")
     @Override
     public StringBuilder parseTimetable(String timetable) {
-        String day = getCurrentDay();
-        Date currentDate, actualDate;
+        String yesterday = getDate(1);
+        Date yesterdayDate, actualDate, todayDate;
+        Date currentDate = new Date();
+        String today = getDate(0);
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        int hours = Integer.parseInt(timeFormat.format(currentDate).substring(0,2));
         try {
-            currentDate = new SimpleDateFormat("dd.MM.yyyy").parse(day);
+            todayDate = new SimpleDateFormat("dd.MM.yyyy").parse(today);
+            yesterdayDate = new SimpleDateFormat("dd.MM.yyyy").parse(yesterday);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -101,17 +108,29 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
             }
 
             // Убедимся, что мы обрабатываем данные только будущих дней
-            assert currentDate != null;
-            if (currentDate.before(actualDate)) {
+            assert yesterdayDate != null;
+            assert todayDate != null;
+            if (yesterdayDate.before(actualDate)) {
                 StringBuilder dailyTimetable = new StringBuilder();
                 dailyTimetable.append(receivedDate).append("\n\n");
 
                 Elements dayClasses = programElement.select(".day-pair");
-
+                int index = 0;
+                int classEndsAt;
                 for (Element currentClass : dayClasses) {
                     String classData = currentClass.select(".font-semibold").text();
-                    String classDesc = currentClass.select(".pair_desc").text();
+                    if (classData.startsWith("Пара: 1")) {
+                        classEndsAt = Integer.parseInt(classData.substring(13, 14));
+                    } else {
+                        classEndsAt = Integer.parseInt(classData.substring(14, 16));
+                    }
+                    if (index == dayClasses.size() - 1 && todayDate.equals(actualDate) && hours > classEndsAt) {
+                        dailyTimetable = new StringBuilder();
+                        break;
+                    }
 
+                    String classDesc = currentClass.select(".pair_desc").text();
+                    index++;
                     dailyTimetable.append(classData).append("\n").append(classDesc).append("\n\n");
                 }
 
@@ -342,9 +361,9 @@ public class TimetablePresenter extends PresenterBase<Timetable.View> implements
     }
 
     @Override
-    public String getCurrentDay() {
+    public String getDate(int shift) {
         Calendar calendar = Calendar.getInstance();
-        int day = calendar.get(Calendar.DATE) - 1;
+        int day = calendar.get(Calendar.DATE) - shift;
         int month = calendar.get(Calendar.MONTH) + 1;
         return day + "."
                 + month + "."

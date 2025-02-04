@@ -37,7 +37,7 @@ public class ClassesAdapter extends RecyclerView.Adapter<ClassesAdapter.ClassVie
         Pattern pairPattern = Pattern.compile("Пара: \\d+ \\d{1,2}:\\d{2}-\\d{1,2}:\\d{2}");
         Matcher pairMatcher = pairPattern.matcher(classInfo);
 
-        Pattern roomPattern = Pattern.compile("\\b\\d{1,2}-\\d{3}\\b");
+        Pattern roomPattern = Pattern.compile("\\b\\d{1,2}-\\d{3}[а-я]?\\b");
         Matcher roomMatcher = roomPattern.matcher(classInfo);
 
         if (pairMatcher.find()) {
@@ -66,17 +66,21 @@ public class ClassesAdapter extends RecyclerView.Adapter<ClassesAdapter.ClassVie
         }
 
         // Разделить информацию о кабинете запятыми и обрабатывать случаи с несколькими кабинетами
-        String[] classDetails = classInfo.split(",(?!\\s?Лабораторная работа|Лекция|Практическое занятие)"); // Split on comma but not within class types
+        String formattedClassDetails = getString(classInfo);
+
+        // Установить данные пары (имя, тип, учитель) без информации о кабинете и подчеркиваний
+        holder.classInfoTextView.setText(formattedClassDetails.trim().replace("\n ", "\n"));
+    }
+
+    private static @NonNull String getString(String classInfo) {
+        String[] classDetails = classInfo.split(",|, (?!\\s?Лабораторная работа|Лекция|Практическое занятие)"); // Split on comma but not within class types
         StringBuilder classDetailsText = new StringBuilder();
         for (String detail : classDetails) {
             classDetailsText.append(detail.trim()).append("\n"); // Add each class detail in a new line
         }
 
         String formattedClassDetails = classDetailsText.toString().trim().replace("_", "");
-        String formattedClassDetails2 = formattedClassDetails.trim().replace("\n\n", "\n");
-
-        // Установить данные пары (имя, тип, учитель) без информации о кабинете и подчеркиваний
-        holder.classInfoTextView.setText(formattedClassDetails2.trim().replace("\n ", "\n"));
+        return formattedClassDetails.trim().replace("\n\n", "\n");
     }
 
 

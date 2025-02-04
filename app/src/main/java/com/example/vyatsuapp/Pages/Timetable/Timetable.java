@@ -36,7 +36,7 @@ public interface Timetable {
 
         StringBuilder parseTimetable(String timetable);
 
-        String getCurrentDay();
+        String getDate(int shift);
 
         StringBuilder getAllTimetable();
 
